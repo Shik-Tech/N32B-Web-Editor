@@ -1,7 +1,8 @@
 {
     "presetVersion": 2,
-    "presetID": 1,
+    "presetID": 0,
     "presetName": "Default",
+    "thruMode": 0,
     "knobs": [
         {
             "id": 1,

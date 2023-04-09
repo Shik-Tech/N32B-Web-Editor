@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { findIndex } from 'lodash';
+import { findIndex, isEmpty } from 'lodash';
 import { WebMidi } from "webmidi";
 import {
   N32B,
   Editor,
+  SysExEditor,
   UpdateDevice,
   ConnectDevice,
   Version,
-  SyncDevice
+  SyncDevice,
+  SystemMessages,
+  ThruMode
 } from './components';
-import {
-} from './presetTemplates';
 import defaultPreset from './presetTemplates/default/default.json';
+import sysExPreset from './presetTemplates/default/sysEx.json';
 import logo from './components/images/shik-logo-small.png';
 import './App.css';
 import { Container } from '@mui/system';
@@ -28,19 +30,28 @@ import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded';
 import SimCardDownloadRoundedIcon from '@mui/icons-material/SimCardDownloadRounded';
 import { validateValueRange } from './components/UpdateDevice/utils';
 import { ModeIndexes } from './components/Editor/Modes';
-import { SEND_FIRMWARE_VERSION, SYNC_KNOBS } from './components/UpdateDevice/commands';
+import { SEND_FIRMWARE_VERSION, SET_THRU_MODE, SYNC_KNOBS } from './components/UpdateDevice/commands';
+import { ThruOptions } from './components/ThruMode/ThruOptions';
 
 function App() {
   const [deviceIsConnected, setDeviceIsConnected] = useState(false);
   const [midiInput, setMidiInput] = useState(null);
   const [midiOutput, setMidiOutput] = useState(null);
-  const [currentPreset, updatePreset] = useState(defaultPreset);
+  const [currentPreset, updatePreset] = useState();
   const [selectedKnobIndex, setSelectedKnobIndex] = useState(0);
-  const [knobsData, setKnobsData] = useState(defaultPreset.knobs);
+  const [knobsData, setKnobsData] = useState();
   const [currentDevicePresetIndex, updateCurrentDevicePresetIndex] = useState(0);
   const [firmwareVersion, setFirmwareVersion] = useState();
   const [midiDeviceName, setMidiDeviceName] = useState();
-  const appVersion = 'v2.0.1';
+  const [systemMessage, setSystemMessage] = useState();
+  const [openMessageDialog, setMessageDialog] = useState(false);
+
+  const knobsDataRef = useRef();
+  const firmwareVersionRef = useRef();
+  const appVersion = 'v2.2.0';
+
+  knobsDataRef.current = knobsData;
+  firmwareVersionRef.current = firmwareVersion;
 
   useEffect(() => {
     WebMidi.enable((err) => {
@@ -51,10 +62,15 @@ function App() {
         if (WebMidi.getInputByName("N32B")) {
           setMidiInput(WebMidi.getInputByName("N32B"));
           setMidiOutput(WebMidi.getOutputByName("N32B"));
+          setDeviceIsConnected(true);
         }
       });
 
       WebMidi.addListener("disconnected", function (event) {
+        setDeviceIsConnected(false);
+        setFirmwareVersion(null);
+        updateCurrentDevicePresetIndex(0);
+        setKnobsData(null);
         setMidiInput(null);
         setMidiOutput(null);
       });
@@ -66,28 +82,18 @@ function App() {
       midiInput.addListener('programchange', undefined, handleProgramChange);
       midiInput.addListener('sysex', 'all', handleSysex);
       handleGetDeviceFirmwareVersion();
-      handleLoadFromDevice();
       setMidiDeviceName(midiOutput.name);
-      setDeviceIsConnected(true);
 
       return () => {
         midiInput.removeListener('programchange', undefined, handleProgramChange);
         midiInput.removeListener('sysex', undefined, handleSysex);
-        setFirmwareVersion(null);
       };
-    } else {
-      setDeviceIsConnected(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [midiInput, midiOutput]);
+  }, [midiOutput, midiInput]);
 
   useEffect(() => {
-    if (midiOutput) {
-      midiOutput.sendProgramChange(currentDevicePresetIndex, 1);
-    }
-  }, [currentDevicePresetIndex, midiOutput]);
-
-  useEffect(() => {
+    if (isEmpty(knobsData)) return;
     updatePreset(prev => ({
       ...prev,
       knobs: [...knobsData]
@@ -99,7 +105,23 @@ function App() {
       ...prev,
       presetID: currentDevicePresetIndex
     }));
-  }, [currentDevicePresetIndex]);
+
+    if (midiOutput) {
+      midiOutput.sendProgramChange(currentDevicePresetIndex, 1);
+    }
+  }, [currentDevicePresetIndex, midiOutput]);
+
+  useEffect(() => {
+    if (firmwareVersion) {
+      if (firmwareVersion[0] > 29) {
+        updatePreset(sysExPreset);
+        setKnobsData(sysExPreset.knobs);
+      } else {
+        updatePreset(defaultPreset);
+        setKnobsData(defaultPreset.knobs);
+      }
+    }
+  }, [firmwareVersion]);
 
   const fileInput = useRef(null);
   const handleFileInputClick = event => {
@@ -112,13 +134,26 @@ function App() {
       const file = fileInput.current.files[0];
       reader.onload = (event => {
         const preset = JSON.parse(event.target.result);
-        setKnobsData(preset.knobs);
+        if (
+          (firmwareVersion[0] > 29 && preset.presetVersion < 3) ||
+          (firmwareVersion[0] < 30 && preset.presetVersion > 2)
+        ) {
+          setSystemMessage('The preset version is not matching the device firmware.');
+          setMessageDialog(true);
+          return;
+        } else {
+          setKnobsData(preset.knobs);
+          updatePreset(prev => ({
+            ...prev,
+            ...preset
+          }))
+        }
       });
       reader.readAsText(file);
     }
   }
   const handleSavePreset = async () => {
-    const fileName = `N32B-Preset-${currentPreset.presetID}`;
+    const fileName = `N32B-Preset-${currentPreset.presetName}`;
     const json = JSON.stringify(currentPreset);
     const blob = new Blob([json], { type: 'application/json' });
     const href = URL.createObjectURL(blob);
@@ -140,8 +175,10 @@ function App() {
       ...prevKnobsData.slice(selectedKnobIndex + 1)
     ]);
   }
-  const handleProgramChange = event => {
-    updateCurrentDevicePresetIndex(event.data[1]);
+
+  const handleCloseSystemDialog = () => {
+    setMessageDialog(false);
+    setSystemMessage(null);
   }
 
   function handleReadFromDevice(data, knobIndex) {
@@ -155,6 +192,10 @@ function App() {
     ]);
   }
 
+  const handleProgramChange = event => {
+    updateCurrentDevicePresetIndex(event.data[1]);
+  }
+
   const handleSysex = event => {
     const {
       dataBytes,
@@ -162,29 +203,55 @@ function App() {
         manufacturerId
       }
     } = event;
+    let knobData = {};
     if (manufacturerId[0] === 32) {
       switch (dataBytes[0]) {
         case SEND_FIRMWARE_VERSION:
           if (dataBytes.length > 2) {
-            setFirmwareVersion(dataBytes.slice(1).join('.'));
+            setFirmwareVersion(dataBytes.slice(1));
           }
           break;
         case SYNC_KNOBS:
           if (dataBytes.length > 7) {
-            const knobIndex = findIndex(knobsData, knob => knob.hardwareId === dataBytes[1]);
+            const knobIndex = findIndex(knobsDataRef.current, knob => knob.hardwareId === dataBytes[1]);
             if (knobIndex > -1) {
-              const knobData = {
-                ...knobsData[knobIndex],
-                mode: dataBytes[5],
-                msb: dataBytes[2],
-                lsb: dataBytes[3],
-                channel: dataBytes[4],
-                invert_a: Boolean(dataBytes[6]),
-                invert_b: Boolean(dataBytes[7])
-              };
+              if (firmwareVersionRef.current[0] < 30) {
+                knobData = {
+                  ...knobsDataRef.current[knobIndex],
+                  mode: dataBytes[5],
+                  msb: dataBytes[2],
+                  lsb: dataBytes[3],
+                  channel: dataBytes[4],
+                  invert_a: Boolean(dataBytes[6]),
+                  invert_b: Boolean(dataBytes[7])
+                };
+              } else {
+                knobData = {
+                  ...knobsDataRef.current[knobIndex],
+                  MSBFirst: Boolean(dataBytes[2]),
+                  valuesIndex: dataBytes[3],
+                  minValue: (dataBytes[4] << 4) | dataBytes[5],
+                  maxValue: (dataBytes[6] << 4) | dataBytes[7],
+                  isSigned: Boolean(dataBytes[8]),
+                  sysExMessage: []
+                }
+                const messageSize = dataBytes[9];
+
+                for (let byteIndex = 0; byteIndex < messageSize; byteIndex++) {
+                  knobData.sysExMessage.push(dataBytes[byteIndex + 10].toString(16).padStart(2, '0'));
+                }
+              }
               handleReadFromDevice(knobData, knobIndex);
             }
           }
+          break;
+
+        case SET_THRU_MODE:
+          const thruMode = dataBytes[1];
+          updatePreset(prev => ({
+            ...prev,
+            thruMode
+          }));
           break;
 
         default:
@@ -193,6 +260,46 @@ function App() {
     }
   }
 
+
+  function handleSysExChange(sysExMessage) {
+    if (sysExMessage.length > 10) return; // Limit sysEx data
+    handleKnobDataChange({ sysExMessage });
+  }
+
+  function handleSysExMSBLSBSwitch() {
+    handleKnobDataChange({
+      MSBFirst: !knobsData[selectedKnobIndex].MSBFirst
+    });
+  }
+
+  function handleSysExValuesIndexChange(valuesIndex) {
+    handleKnobDataChange({
+      valuesIndex
+    });
+  }
+  function handleIsSignedChange(event) {
+    const isSigned = event.target.checked;
+    const minValue = isSigned ? 0 : knobsData[selectedKnobIndex].minValue;
+    const maxValue =
+      isSigned && knobsData[selectedKnobIndex].maxValue > 127 ?
+        127 : knobsData[selectedKnobIndex].maxValue;
+    handleKnobDataChange({
+      isSigned,
+      minValue,
+      maxValue
+    });
+  }
+
+  function handleMinValueChange(event) {
+    handleKnobDataChange({
+      minValue: validateValueRange(event.target)
+    });
+  }
+  function handleMaxValueChange(event) {
+    handleKnobDataChange({
+      maxValue: validateValueRange(event.target)
+    });
+  }
   function handleModeSelect(event) {
     let newData = {
       mode: parseInt(event.target.value)
@@ -259,8 +366,20 @@ function App() {
     window.open("https://shik.tech/firmware-update/");
   }
 
+  function handleThruModeChange(thruMode) {
+    updatePreset(prev => ({
+      ...prev,
+      thruMode: thruMode.target.value
+    }));
+  }
+
   return (
     <Container maxWidth="lg">
+      <SystemMessages
+        closeDialog={handleCloseSystemDialog}
+        showMessage={openMessageDialog}
+        message={systemMessage}
+      />
       <Box>
         <AppBar position="static" >
           <Toolbar variant="dense">
@@ -285,10 +404,14 @@ function App() {
                 </Typography>
                 {deviceIsConnected && firmwareVersion &&
                   <Typography sx={{ pt: 1 }} variant="body2" component="div">
-                    {midiDeviceName} < Typography variant="caption" >(v.{firmwareVersion})</Typography>
+                    {midiDeviceName} < Typography variant="caption" sx={{ color: "#808080" }} >(v.{firmwareVersion.join('.')})</Typography>
+                    {firmwareVersion[0] > 29 &&
+                      " - SysEx"
+                    }
                   </Typography>
                 }
               </Stack>
+
               {deviceIsConnected && !firmwareVersion &&
                 <Button
                   onClick={handleFirmwareUpdate}
@@ -297,7 +420,8 @@ function App() {
                   Firmware Update
                 </Button>
               }
-              {deviceIsConnected && firmwareVersion &&
+
+              {deviceIsConnected && firmwareVersion && currentPreset &&
                 <Stack
                   direction="row"
                   spacing={2}
@@ -327,6 +451,7 @@ function App() {
                   </Button>
 
                   <UpdateDevice
+                    firmwareVersion={firmwareVersion}
                     currentPreset={currentPreset}
                     midiOutput={midiOutput}
                     currentDevicePresetIndex={currentDevicePresetIndex}
@@ -334,6 +459,7 @@ function App() {
                   />
 
                   <SyncDevice
+                    firmwareVersion={firmwareVersion}
                     currentPreset={currentPreset}
                     currentDevicePresetIndex={currentDevicePresetIndex}
                     updateCurrentDevicePresetIndex={updateCurrentDevicePresetIndex}
@@ -341,21 +467,15 @@ function App() {
                   />
                 </Stack>
               }
-
-              {/* <PresetSelect
-                handlePresetChange={handlePresetChange}
-                handlePresetNameChange={handlePresetNameChange}
-                currentPresetIndex={currentPresetIndex}
-                presets={presets}
-              /> */}
             </Stack>
           </Toolbar>
         </AppBar>
+
         {!deviceIsConnected &&
           <ConnectDevice />
         }
 
-        {deviceIsConnected && firmwareVersion &&
+        {deviceIsConnected && firmwareVersion && knobsData &&
           <Stack
             direction="row"
             divider={<Divider orientation="vertical" flexItem />}
@@ -364,7 +484,7 @@ function App() {
           >
             <Stack>
               <N32B
-                knobsData={currentPreset.knobs}
+                knobsData={knobsData}
                 selectedKnobIndex={selectedKnobIndex}
                 setSelectedKnob={setSelectedKnobIndex}
               />
@@ -375,21 +495,42 @@ function App() {
               sx={{ flexGrow: 1 }}
               spacing={2}
             >
+              {firmwareVersion[0] > 29 &&
+                <>
+                  <ThruMode
+                    thruMode={currentPreset.thruMode}
+                    thruOptions={ThruOptions}
+                    handleThruModeChange={handleThruModeChange}
+                  />
+                  <Divider />
+                </>
+              }
               <Typography variant="h5" component="div" gutterBottom>
-                Editing Knob: <span className="currentKnob">{currentPreset.knobs[selectedKnobIndex].id}</span>
+                Editing Knob: <span className="currentKnob">{knobsData[selectedKnobIndex].id}</span>
               </Typography>
-
-              <Editor
-                currentKnob={knobsData[selectedKnobIndex]}
-                handleKnobDataChange={handleKnobDataChange}
-                handleChannelChange={handleChannelChange}
-                handleMSBChange={handleMSBChange}
-                handleLSBChange={handleLSBChange}
-                handleInvertValueAChange={handleInvertValueAChange}
-                handleInvertValueBChange={handleInvertValueBChange}
-                handleHiResChange={handleHiResChange}
-                handleModeSelect={handleModeSelect}
-              />
+              {firmwareVersion[0] < 30 &&
+                <Editor
+                  currentKnob={knobsData[selectedKnobIndex]}
+                  handleChannelChange={handleChannelChange}
+                  handleMSBChange={handleMSBChange}
+                  handleLSBChange={handleLSBChange}
+                  handleInvertValueAChange={handleInvertValueAChange}
+                  handleInvertValueBChange={handleInvertValueBChange}
+                  handleHiResChange={handleHiResChange}
+                  handleModeSelect={handleModeSelect}
+                />
+              }
+              {firmwareVersion[0] > 29 &&
+                <SysExEditor
+                  currentKnob={knobsData[selectedKnobIndex]}
+                  handleSysExChange={handleSysExChange}
+                  handleSysExMSBLSBSwitch={handleSysExMSBLSBSwitch}
+                  handleMinValueChange={handleMinValueChange}
+                  handleMaxValueChange={handleMaxValueChange}
+                  handleSysExValuesIndexChange={handleSysExValuesIndexChange}
+                  handleIsSignedChange={handleIsSignedChange}
+                />
+              }
             </Stack>
           </Stack>
         }

@@ -1,0 +1,328 @@
+{
+    "presetVersion": 3,
+    "presetID": 0,
+    "presetName": "SysEx Default",
+    "thruMode": 0,
+    "knobs": [
+        {
+            "id": 1,
+            "hardwareId": 15,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 2,
+            "hardwareId": 14,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 3,
+            "hardwareId": 12,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 4,
+            "hardwareId": 9,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 5,
+            "hardwareId": 31,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 6,
+            "hardwareId": 24,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 7,
+            "hardwareId": 20,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 8,
+            "hardwareId": 16,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 9,
+            "hardwareId": 13,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 10,
+            "hardwareId": 11,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 11,
+            "hardwareId": 10,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 12,
+            "hardwareId": 2,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 13,
+            "hardwareId": 30,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 14,
+            "hardwareId": 25,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 15,
+            "hardwareId": 21,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 16,
+            "hardwareId": 17,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 17,
+            "hardwareId": 8,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 18,
+            "hardwareId": 7,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 19,
+            "hardwareId": 4,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 20,
+            "hardwareId": 1,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 21,
+            "hardwareId": 29,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 22,
+            "hardwareId": 26,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 23,
+            "hardwareId": 22,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 24,
+            "hardwareId": 18,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 25,
+            "hardwareId": 6,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 26,
+            "hardwareId": 5,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 27,
+            "hardwareId": 3,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 28,
+            "hardwareId": 0,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 29,
+            "hardwareId": 28,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 30,
+            "hardwareId": 27,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 31,
+            "hardwareId": 23,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        },
+        {
+            "id": 32,
+            "hardwareId": 19,
+            "sysExMessage": [],
+            "MSBFirst": true,
+            "valuesIndex": 0,
+            "minValue": 0,
+            "maxValue": 127,
+            "isSigned": false
+        }
+    ]
+}

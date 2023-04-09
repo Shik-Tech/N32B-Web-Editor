@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { generateSysExFromPreset } from './utils';
+import { generateSysExFromPreset, generateSysExFromPresetV2 } from './utils';
 import { forEach, map } from 'lodash';
 import {
     Button,
@@ -88,7 +88,8 @@ function UpdateDevice(props) {
         currentPreset,
         midiOutput,
         currentDevicePresetIndex,
-        updateCurrentDevicePresetIndex
+        updateCurrentDevicePresetIndex,
+        firmwareVersion
     } = props;
 
     const [open, setOpen] = React.useState(false);
@@ -105,7 +106,12 @@ function UpdateDevice(props) {
     const handleSaveToDevice = e => {
         setUpdating(true);
         let promise = Promise.resolve();
-        const messages = generateSysExFromPreset(currentPreset);
+        let messages;
+        if (firmwareVersion[0] < 30) {
+            messages = generateSysExFromPreset(currentPreset);
+        } else {
+            messages = generateSysExFromPresetV2(currentPreset);
+        }
         forEach(messages, (message, key) => {
             promise = promise.then(() => {
                 setProgress((key + 1) * 100 / messages.length);
@@ -123,7 +129,7 @@ function UpdateDevice(props) {
         });
     }
 
-    const presets = [0, 1, 2, 3, 4];
+    const presets = firmwareVersion[0] < 30 ? [0, 1, 2, 3, 4] : [0];
 
     return (
         <>
@@ -138,7 +144,6 @@ function UpdateDevice(props) {
             </Button>
             <Dialog
                 open={open}
-                onClose={handleClose}
             >
                 <DialogTitle>
                     <Grid
@@ -165,8 +170,8 @@ function UpdateDevice(props) {
                         severity='warning'
                         variant="filled"
                     >
-                        Please set all the knobs before updating the device. <br />
-                        This will save the device memory for long term usage.
+                        Please finish setting up all the knobs before updating the device. <br />
+                        It is recommended to do a bulk updates to preserve the device memory for long term usage.
                     </Alert>
                     <Alert
                         severity='error'

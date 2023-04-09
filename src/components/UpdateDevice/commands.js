@@ -4,5 +4,16 @@ const LOAD_PRESET = 3;           // Load a preset
 const SEND_FIRMWARE_VERSION = 4; // Send the device firmware version
 const SYNC_KNOBS = 5;            // Send active preset
 const CHANGE_CHANNEL = 6;        // Changes the global MIDI channel
+const START_SYSEX_MESSAGE = 7;   // Announce start of sysEx mesasge
+const SET_THRU_MODE = 8;         // Set Thru Mode
 
-export { SET_KNOB_MODE, SAVE_PRESET, LOAD_PRESET, SEND_FIRMWARE_VERSION, SYNC_KNOBS, CHANGE_CHANNEL };
+export {
+    SET_KNOB_MODE,
+    SAVE_PRESET,
+    LOAD_PRESET,
+    SEND_FIRMWARE_VERSION,
+    SYNC_KNOBS,
+    CHANGE_CHANNEL,
+    START_SYSEX_MESSAGE,
+    SET_THRU_MODE
+};
