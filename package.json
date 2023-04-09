@@ -1,7 +1,7 @@
 {
   "name": "n32b_web_editor",
   "description": "Web editor for the N32B midi controller",
-  "version": "2.0.0",
+  "version": "2.3.0",
   "license": "CC BY-NC-SA 4.0",
   "author": {
     "name": "SHIK",
@@ -13,7 +13,7 @@
   "build": {
     "appId": "tech.shik.editor",
     "productName": "N32B Web Editor",
-    "copyright": "Copyright © 2022 SHIK",
+    "copyright": "Copyright © 2023 SHIK",
     "files": [
       "build/**/*",
       "assets/icon.*",
@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.5",
-    "@testing-library/react": "^13.3.0",
+    "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.2.0"
   }
 }

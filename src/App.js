@@ -48,7 +48,7 @@ function App() {
 
   const knobsDataRef = useRef();
   const firmwareVersionRef = useRef();
-  const appVersion = 'v2.2.0';
+  const appVersion = 'v2.2.1';
 
   knobsDataRef.current = knobsData;
   firmwareVersionRef.current = firmwareVersion;
