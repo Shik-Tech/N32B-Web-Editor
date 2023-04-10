@@ -43,14 +43,7 @@ export function useDataDispatch() {
 
 function dataReducer(data, action) {
     const {
-        // firmwareVersion,
         currentPreset,
-        // deviceIsConnected,
-        // midiInput,
-        // midiOutput,
-        // midiDeviceName,
-        // systemMessage,
-        // openMessageDialog
     } = data;
 
     switch (action.type) {

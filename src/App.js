@@ -30,6 +30,13 @@ import { SEND_FIRMWARE_VERSION, SET_THRU_MODE, SYNC_KNOBS } from './components/U
 import { ThruOptions } from './components/ThruMode/ThruOptions';
 import { useData, useDataDispatch } from './reducer/context';
 
+function byteString(n) {
+  if (n < 0 || n > 255 || n % 1 !== 0) {
+    throw new Error(n + " does not fit in a byte");
+  }
+  return ("00000000" + n.toString(2)).slice(-8)
+}
+
 function App() {
   const dispatch = useDataDispatch();
   const {
@@ -111,7 +118,7 @@ function App() {
     event.target.value = null;
     fileInput.current.click();
   }
-  
+
   const handleLoadPreset = e => {
     const reader = new FileReader();
     if (fileInput.current.files.length > 0) {
@@ -190,7 +197,7 @@ function App() {
         manufacturerId
       }
     } = event;
-    let knobData = {};
+    let currentKnob = {};
     if (manufacturerId[0] === 32) {
       switch (dataBytes[0]) {
         case SEND_FIRMWARE_VERSION:
@@ -207,7 +214,7 @@ function App() {
             if (knobIndex > -1) {
               switch (true) {
                 case firmwareVersion[0] > 29:
-                  knobData = {
+                  currentKnob = {
                     ...currentPreset.knobs[knobIndex],
                     MSBFirst: Boolean(dataBytes[2]),
                     valuesIndex: dataBytes[3],
@@ -219,12 +226,12 @@ function App() {
                   const messageSize = dataBytes[9];
 
                   for (let byteIndex = 0; byteIndex < messageSize; byteIndex++) {
-                    knobData.sysExMessage.push(dataBytes[byteIndex + 10].toString(16).padStart(2, '0'));
+                    currentKnob.sysExMessage.push(dataBytes[byteIndex + 10].toString(16).padStart(2, '0'));
                   }
                   break;
 
                 case firmwareVersion[0] < 4:
-                  knobData = {
+                  currentKnob = {
                     ...currentPreset.knobs[knobIndex],
                     mode: dataBytes[5],
                     msb: dataBytes[2],
@@ -235,16 +242,24 @@ function App() {
                   };
                   break;
 
-                case firmwareVersion[0] === 4:
-                  // TODO: Structue according to firmware V4
-                  knobData = {
-                    // ...currentPreset.knobs[knobIndex],
-                    // mode: dataBytes[5],
-                    // msb: dataBytes[2],
-                    // lsb: dataBytes[3],
-                    // channel: dataBytes[4],
-                    // invert_a: Boolean(dataBytes[6]),
-                    // invert_b: Boolean(dataBytes[7])
+                case firmwareVersion[0] > 3:
+                  const properties = byteString(dataBytes[5]);
+                  const channels = byteString(dataBytes[4]);
+                  const useGlobalChannelA = Boolean(parseInt(properties.slice(5, 6), 2));
+                  const useGlobalChannelB = Boolean(parseInt(properties.slice(4, 5), 2));
+                  currentKnob = {
+                    ...currentPreset.knobs[knobIndex],
+                    mode: parseInt(properties.slice(1, 4), 2),
+                    msb: dataBytes[2],
+                    lsb: dataBytes[3],
+                    channel_a: useGlobalChannelA ? 0 : parseInt(channels.slice(0, 4), 2),
+                    channel_b: useGlobalChannelB ? 0 : parseInt(channels.slice(4), 2),
+                    invert_a: Boolean(parseInt(channels.slice(7, 8), 2)),
+                    invert_b: Boolean(parseInt(channels.slice(6, 7), 2)),
+                    min_a: dataBytes[6],
+                    max_a: dataBytes[7],
+                    min_b: dataBytes[8],
+                    max_b: dataBytes[9],
                   };
                   break;
 
@@ -254,7 +269,7 @@ function App() {
 
               dispatch({
                 type: "updateKnobData",
-                currentKnob: knobData
+                currentKnob
               });
             }
           }

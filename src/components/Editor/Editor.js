@@ -118,7 +118,6 @@ function Editor(props) {
         });
     }
 
-
     const formStandardProps = {
         handleMSBChange,
         handleInvertValueAChange
