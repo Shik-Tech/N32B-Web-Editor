@@ -72,7 +72,7 @@ function Editor(props) {
             </FormControl>
             {
                 currentKnob.mode !== ModeIndexes.KNOB_MODE_DISABLE &&
-                currentKnob.mode !== ModeIndexes.KNOB_MODE_MACRO &&
+                firmwareVersion[0] < 4 &&
                 <FormControl fullWidth size="small">
                     <InputLabel id="channel-select-label">Channel</InputLabel>
                     <ChannelSelect
