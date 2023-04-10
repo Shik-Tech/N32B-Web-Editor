@@ -47,7 +47,7 @@ function dataReducer(data, action) {
         currentPreset,
         // deviceIsConnected,
         // midiInput,
-        midiOutput,
+        // midiOutput,
         // midiDeviceName,
         // systemMessage,
         // openMessageDialog

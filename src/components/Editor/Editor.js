@@ -71,12 +71,24 @@ function Editor(props) {
                 </Select>
             </FormControl>
             {
-                currentKnob.mode !== ModeIndexes.KNOB_MODE_DISABLE &&
                 firmwareVersion[0] < 4 &&
+                currentKnob.mode !== ModeIndexes.KNOB_MODE_DISABLE &&
                 <FormControl fullWidth size="small">
                     <InputLabel id="channel-select-label">Channel</InputLabel>
                     <ChannelSelect
-                        channel={firmwareVersion[0] < 4 ? currentKnob.channel : currentKnob.channel_a}
+                        channel={currentKnob.channel}
+                        handleChannelChange={handleChannelChange}
+                        label="Channel" />
+                </FormControl>
+            }
+            {
+                firmwareVersion[0] > 3 &&
+                currentKnob.mode !== ModeIndexes.KNOB_MODE_DISABLE &&
+                currentKnob.mode !== ModeIndexes.KNOB_MODE_MACRO &&
+                <FormControl fullWidth size="small">
+                    <InputLabel id="channel-select-label">Channel</InputLabel>
+                    <ChannelSelect
+                        channel={currentKnob.channel_a}
                         handleChannelChange={handleChannelChange}
                         label="Channel" />
                 </FormControl>
