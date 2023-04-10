@@ -158,8 +158,8 @@ function dataReducer(data, action) {
             return {
                 ...data,
                 currentPreset: {
-                    ...data.currentPreset,
-                    knobs: data.currentPreset.knobs.map(knob => {
+                    ...currentPreset,
+                    knobs: currentPreset.knobs.map(knob => {
                         if (knob.id === action.currentKnob.id) {
                             if (action.currentKnob.mode === ModeIndexes.KNOB_MODE_HIRES) {
                                 if (knob.msb > 31) {
@@ -173,6 +173,10 @@ function dataReducer(data, action) {
                                         ...action.currentKnob,
                                         lsb: action.currentKnob.msb + 32
                                     }
+                                }
+                            } else {
+                                return {
+                                    ...action.currentKnob
                                 }
                             }
                         }
