@@ -23,25 +23,25 @@ function ControlChangeHiResForm({
             direction="row"
             spacing={2}
         >
-            <FormControl fullWidth>
-                <TextField
-                    label="MSB"
-                    type="number"
+            <TextField
+                fullWidth
+                size="small"
+                label="MSB"
+                type="number"
 
-                    InputProps={{ inputProps: { min: 0, max: 31 } }}
-                    value={msb}
-                    onChange={handleHiResChange}
-                />
-            </FormControl>
-            <FormControl fullWidth>
-                <TextField
-                    label="LSB"
-                    type="number"
-                    disabled={true}
-                    InputProps={{ inputProps: { min: 0, max: 31 } }}
-                    value={lsb}
-                />
-            </FormControl>
+                InputProps={{ inputProps: { min: 0, max: 31 } }}
+                value={msb}
+                onChange={handleHiResChange}
+            />
+            <TextField
+                fullWidth
+                size="small"
+                label="LSB"
+                type="number"
+                disabled={true}
+                InputProps={{ inputProps: { min: 0, max: 31 } }}
+                value={lsb}
+            />
 
             <FormControlLabel
                 control={

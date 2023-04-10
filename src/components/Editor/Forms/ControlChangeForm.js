@@ -22,16 +22,16 @@ function ControlChangeForm({
             direction="row"
             spacing={2}
         >
-            <FormControl fullWidth>
-                <TextField
-                    label="Control Number"
-                    type="number"
+            <TextField
+                fullWidth
+                size="small"
+                label="Control Number"
+                type="number"
 
-                    InputProps={{ inputProps: { min: 0, max: 127 } }}
-                    value={msb}
-                    onChange={handleMSBChange}
-                />
-            </FormControl>
+                InputProps={{ inputProps: { min: 0, max: 127 } }}
+                value={msb}
+                onChange={handleMSBChange}
+            />
             <FormControlLabel
                 control={
                     <Checkbox

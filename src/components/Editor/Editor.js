@@ -29,17 +29,10 @@ function Editor(props) {
     }
 
     function handleChannelChange(event) {
-        if (firmwareVersion[0] < 4) {
-            handleKnobDataChange(
-                currentKnob, {
-                channel: parseInt(event.target.value)
-            });
-        } else if (firmwareVersion[0] > 3) {
-            handleKnobDataChange(
-                currentKnob, {
-                channel_a: parseInt(event.target.value)
-            });
-        }
+        handleKnobDataChange(
+            currentKnob, {
+            channel: parseInt(event.target.value)
+        });
     }
 
     function handleModeSelect(e) {
@@ -150,14 +143,19 @@ function Editor(props) {
         handleInvertValueAChange
     }
 
+    const formHiResProps = {
+        handleHiResChange,
+        handleInvertValueAChange
+    }
+
     const dispatch = useDataDispatch();
     const displayForms = [
         <></>,
         <ControlChangeForm {...props} {...formStandardProps} />,
         <ControlChangeMacroForm {...props} {...formMacroProps} />,
         <ControlChangeRPNForm {...props} {...formRPNProps} />,
-        <ControlChangeRPNForm {...props} {...formStandardProps} />,
-        <ControlChangeHiResForm {...props} {...formStandardProps} />
+        <ControlChangeRPNForm {...props} {...formRPNProps} />,
+        <ControlChangeHiResForm {...props} {...formHiResProps} />
     ];
 
     return (
@@ -197,7 +195,7 @@ function Editor(props) {
                     <InputLabel id="channel-select-label">Channel</InputLabel>
                     <ChannelSelect
                         channel={currentKnob.channel_a}
-                        handleChannelChange={handleChannelChange}
+                        handleChannelChange={handleChannelAChange}
                         label="Channel" />
                 </FormControl>
             }
