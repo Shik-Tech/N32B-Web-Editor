@@ -29,13 +29,7 @@ import SimCardDownloadRoundedIcon from '@mui/icons-material/SimCardDownloadRound
 import { SEND_FIRMWARE_VERSION, SET_THRU_MODE, SYNC_KNOBS } from './components/UpdateDevice/commands';
 import { ThruOptions } from './components/ThruMode/ThruOptions';
 import { useData, useDataDispatch } from './reducer/context';
-
-function byteString(n) {
-  if (n < 0 || n > 255 || n % 1 !== 0) {
-    throw new Error(n + " does not fit in a byte");
-  }
-  return ("00000000" + n.toString(2)).slice(-8)
-}
+import { byteString } from './utils';
 
 function App() {
   const dispatch = useDataDispatch();
@@ -190,13 +184,13 @@ function App() {
     midiOutput.sendProgramChange(presetIndex, 1);
   }
 
-  const handleSysex = event => {
+  function handleSysex(e) {
     const {
       dataBytes,
       message: {
         manufacturerId
       }
-    } = event;
+    } = e;
     let currentKnob = {};
     if (manufacturerId[0] === 32) {
       switch (dataBytes[0]) {

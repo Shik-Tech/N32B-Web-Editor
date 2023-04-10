@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { generateSysExFromPreset, generateSysExFromPresetV2 } from './utils';
+import { generateSysExFromPreset, generateSysExFromPresetV2, generateSysExFromPresetV3 } from './utils';
 import { forEach, map } from 'lodash';
 import {
     Button,
@@ -88,7 +88,7 @@ function UpdateDevice(props) {
         currentPreset,
         midiOutput,
         currentDevicePresetIndex,
-        updateCurrentDevicePresetIndex,
+        handlePresetChange,
         firmwareVersion
     } = props;
 
@@ -99,22 +99,21 @@ function UpdateDevice(props) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const handlePresetSelect = e => {
-        updateCurrentDevicePresetIndex(parseInt(e.target.value));
-    }
-
     const handleSaveToDevice = e => {
         setUpdating(true);
         let promise = Promise.resolve();
         let messages;
-        if (firmwareVersion[0] < 30) {
+        if (firmwareVersion[0] > 29) {
+            messages = generateSysExFromPresetV2(currentPreset);
+        } else if (firmwareVersion[0] < 4) {
             messages = generateSysExFromPreset(currentPreset);
         } else {
-            messages = generateSysExFromPresetV2(currentPreset);
+            messages = generateSysExFromPresetV3(currentPreset);
         }
         forEach(messages, (message, key) => {
             promise = promise.then(() => {
                 setProgress((key + 1) * 100 / messages.length);
+                console.log(message);
                 midiOutput.sendSysex(32, message);
 
                 return new Promise(resolve => {
@@ -129,7 +128,21 @@ function UpdateDevice(props) {
         });
     }
 
-    const presets = firmwareVersion[0] < 30 ? [0, 1, 2, 3, 4] : [0];
+    let presets;
+    switch (true) {
+        case firmwareVersion[0] === 4:
+            presets = [0, 1, 2];
+            break;
+        case firmwareVersion[0] < 4:
+            presets = [0, 1, 2, 3, 4];
+            break;
+        case firmwareVersion[0] > 29:
+            presets = [0];
+            break;
+        default:
+            presets = [0];
+            break;
+    }
 
     return (
         <>
@@ -192,7 +205,7 @@ function UpdateDevice(props) {
                                 id="preset-select"
                                 label="Device Preset"
                                 value={currentDevicePresetIndex}
-                                onChange={handlePresetSelect}
+                                onChange={handlePresetChange}
                             >
                                 {map(presets, (presetValue, key) =>
                                     <MenuItem value={presetValue} key={key}>Preset {presetValue + 1}</MenuItem>
