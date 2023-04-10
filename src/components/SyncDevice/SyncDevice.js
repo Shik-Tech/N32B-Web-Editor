@@ -19,7 +19,7 @@ import SyncRoundedIcon from '@mui/icons-material/SyncRounded';
 function SyncDEvice(props) {
     const {
         currentDevicePresetIndex,
-        updateCurrentDevicePresetIndex,
+        handlePresetChange,
         handleLoadFromDevice,
         firmwareVersion
     } = props;
@@ -29,11 +29,21 @@ function SyncDEvice(props) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const handlePresetSelect = e => {
-        updateCurrentDevicePresetIndex(parseInt(e.target.value));
+    let presets;
+    switch (true) {
+        case firmwareVersion[0] === 4:
+            presets = [0, 1, 2];
+            break;
+        case firmwareVersion[0] < 4:
+            presets = [0, 1, 2, 3, 4];
+            break;
+        case firmwareVersion[0] > 29:
+            presets = [0];
+            break;
+        default:
+            presets = [0];
+            break;
     }
-
-    const presets = firmwareVersion[0] < 30 ? [0, 1, 2, 3, 4] : [0];
 
     return (
         <>
@@ -81,7 +91,7 @@ function SyncDEvice(props) {
                                 label="Device Preset"
                                 color='warning'
                                 value={currentDevicePresetIndex}
-                                onChange={handlePresetSelect}
+                                onChange={handlePresetChange}
                             >
                                 {map(presets, (presetValue, key) =>
                                     <MenuItem value={presetValue} key={key}>Preset {presetValue + 1}</MenuItem>

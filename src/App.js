@@ -46,13 +46,7 @@ function App() {
     openMessageDialog,
     selectedKnobIndex
   } = useData();
-
-  // const knobsDataRef = useRef();
-  // const firmwareVersionRef = useRef();
   const appVersion = 'v2.2.1';
-
-  // knobsDataRef.current = knobsData;
-  // firmwareVersionRef.current = firmwareVersion;
 
   useEffect(() => {
     WebMidi.enable((err) => {
@@ -99,7 +93,7 @@ function App() {
 
   useEffect(() => {
     if (midiOutput && midiInput) {
-      midiInput.addListener('programchange', undefined, handlePresetChange);
+      // midiInput.addListener('programchange', undefined, handlePresetChange);
       midiInput.addListener('sysex', 'all', handleSysex);
       handleGetDeviceFirmwareVersion();
       dispatch({
@@ -108,20 +102,12 @@ function App() {
       });
 
       return () => {
-        midiInput.removeListener('programchange', undefined, handlePresetChange);
+        // midiInput.removeListener('programchange', undefined, handlePresetChange);
         midiInput.removeListener('sysex', undefined, handleSysex);
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [midiOutput, midiInput]);
-
-  // useEffect(() => {
-  //   if (isEmpty(knobsData)) return;
-  //   updatePreset(prev => ({
-  //     ...prev,
-  //     knobs: [...knobsData]
-  //   }));
-  // }, [knobsData]);
 
   // useEffect(() => {
   //   updatePreset(prev => ({
@@ -212,11 +198,12 @@ function App() {
   }
 
   const handlePresetChange = e => {
+    const presetIndex = parseInt(e.target.value);
     dispatch({
       type: "updateCurrentDevicePresetIndex",
-      currentDevicePresetIndex: e.data[1]
+      currentDevicePresetIndex: presetIndex
     });
-    midiOutput.sendProgramChange(e.data[1], 1);
+    midiOutput.sendProgramChange(presetIndex, 1);
   }
 
   const handleSysex = event => {
@@ -241,8 +228,8 @@ function App() {
           if (dataBytes.length > 7) {
             const knobIndex = findIndex(currentPreset.knobs, knob => knob.hardwareId === dataBytes[1]);
             if (knobIndex > -1) {
-              switch (firmwareVersion[0]) {
-                case this > 29:
+              switch (true) {
+                case firmwareVersion[0] > 29:
                   knobData = {
                     ...currentPreset.knobs[knobIndex],
                     MSBFirst: Boolean(dataBytes[2]),
@@ -259,7 +246,7 @@ function App() {
                   }
                   break;
 
-                case this < 4:
+                case firmwareVersion[0] < 4:
                   knobData = {
                     ...currentPreset.knobs[knobIndex],
                     mode: dataBytes[5],
@@ -271,7 +258,7 @@ function App() {
                   };
                   break;
 
-                case this === 4:
+                case firmwareVersion[0] === 4:
                   // TODO: Structue according to firmware V4
                   knobData = {
                     // ...currentPreset.knobs[knobIndex],
@@ -469,15 +456,15 @@ function App() {
                     firmwareVersion={firmwareVersion}
                     currentPreset={currentPreset}
                     midiOutput={midiOutput}
-                    currentDevicePresetIndex={currentPreset.presetId}
-                    updateCurrentDevicePresetIndex={handlePresetChange}
+                    currentDevicePresetIndex={currentPreset.presetID}
+                    handlePresetChange={handlePresetChange}
                   />
 
                   <SyncDevice
                     firmwareVersion={firmwareVersion}
                     currentPreset={currentPreset}
-                    currentDevicePresetIndex={currentPreset.presetId}
-                    updateCurrentDevicePresetIndex={handlePresetChange}
+                    currentDevicePresetIndex={currentPreset.presetID}
+                    handlePresetChange={handlePresetChange}
                     handleLoadFromDevice={handleLoadFromDevice}
                   />
                 </Stack>
