@@ -4,6 +4,7 @@ import '@fontsource/roboto/300.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { DataProvider } from './reducer/context';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -18,7 +19,9 @@ darkTheme.spacing(2);
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
-      <App />
+      <DataProvider>
+        <App />
+      </DataProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

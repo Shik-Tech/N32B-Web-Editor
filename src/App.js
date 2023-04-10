@@ -12,7 +12,7 @@ import {
   SystemMessages,
   ThruMode
 } from './components';
-import defaultPreset from './presetTemplates/default/default.json';
+import defaultPresets from './presetTemplates/default';
 import sysExPreset from './presetTemplates/default/sysEx.json';
 import logo from './components/images/shik-logo-small.png';
 import './App.css';
@@ -32,26 +32,32 @@ import { validateValueRange } from './components/UpdateDevice/utils';
 import { ModeIndexes } from './components/Editor/Modes';
 import { SEND_FIRMWARE_VERSION, SET_THRU_MODE, SYNC_KNOBS } from './components/UpdateDevice/commands';
 import { ThruOptions } from './components/ThruMode/ThruOptions';
+import { useData, useDataDispatch } from './reducer/context';
 
 function App() {
   const [deviceIsConnected, setDeviceIsConnected] = useState(false);
   const [midiInput, setMidiInput] = useState(null);
   const [midiOutput, setMidiOutput] = useState(null);
-  const [currentPreset, updatePreset] = useState();
+  // const [currentPreset, updatePreset] = useState();
   const [selectedKnobIndex, setSelectedKnobIndex] = useState(0);
-  const [knobsData, setKnobsData] = useState();
+  // const [knobsData, setKnobsData] = useState();
   const [currentDevicePresetIndex, updateCurrentDevicePresetIndex] = useState(0);
-  const [firmwareVersion, setFirmwareVersion] = useState();
+  // const [firmwareVersion, setFirmwareVersion] = useState();
   const [midiDeviceName, setMidiDeviceName] = useState();
   const [systemMessage, setSystemMessage] = useState();
   const [openMessageDialog, setMessageDialog] = useState(false);
+  const dispatch = useDataDispatch();
+  const {
+    currentPreset,
+    firmwareVersion
+  } = useData();
 
-  const knobsDataRef = useRef();
-  const firmwareVersionRef = useRef();
+  // const knobsDataRef = useRef();
+  // const firmwareVersionRef = useRef();
   const appVersion = 'v2.2.1';
 
-  knobsDataRef.current = knobsData;
-  firmwareVersionRef.current = firmwareVersion;
+  // knobsDataRef.current = knobsData;
+  // firmwareVersionRef.current = firmwareVersion;
 
   useEffect(() => {
     WebMidi.enable((err) => {
@@ -68,9 +74,9 @@ function App() {
 
       WebMidi.addListener("disconnected", function (event) {
         setDeviceIsConnected(false);
-        setFirmwareVersion(null);
+        // setFirmwareVersion(null);
         updateCurrentDevicePresetIndex(0);
-        setKnobsData(null);
+        // setKnobsData(null);
         setMidiInput(null);
         setMidiOutput(null);
       });
@@ -92,19 +98,19 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [midiOutput, midiInput]);
 
-  useEffect(() => {
-    if (isEmpty(knobsData)) return;
-    updatePreset(prev => ({
-      ...prev,
-      knobs: [...knobsData]
-    }));
-  }, [knobsData]);
+  // useEffect(() => {
+  //   if (isEmpty(knobsData)) return;
+  //   updatePreset(prev => ({
+  //     ...prev,
+  //     knobs: [...knobsData]
+  //   }));
+  // }, [knobsData]);
 
   useEffect(() => {
-    updatePreset(prev => ({
-      ...prev,
-      presetID: currentDevicePresetIndex
-    }));
+    // updatePreset(prev => ({
+    //   ...prev,
+    //   presetID: currentDevicePresetIndex
+    // }));
 
     if (midiOutput) {
       midiOutput.sendProgramChange(currentDevicePresetIndex, 1);
@@ -114,11 +120,32 @@ function App() {
   useEffect(() => {
     if (firmwareVersion) {
       if (firmwareVersion[0] > 29) {
-        updatePreset(sysExPreset);
-        setKnobsData(sysExPreset.knobs);
+        // updatePreset(sysExPreset);
+        dispatch({
+          type: "setData",
+          data: {
+            ...sysExPreset
+          }
+        });
+        // setKnobsData(sysExPreset.knobs);
+      } else if (firmwareVersion[0] < 4) {
+        // updatePreset(defaultPresets.defaultPreset_v3);
+        dispatch({
+          type: "setData",
+          data: {
+            ...defaultPresets.defaultPreset_v3
+          }
+        });
+        // setKnobsData(defaultPresets.defaultPreset_v3.knobs);
       } else {
-        updatePreset(defaultPreset);
-        setKnobsData(defaultPreset.knobs);
+        // updatePreset(defaultPresets.defaultPreset_v4);
+        dispatch({
+          type: "setData",
+          data: {
+            ...defaultPresets.defaultPreset_v4
+          }
+        });
+        // setKnobsData(defaultPresets.defaultPreset_v4.knobs);
       }
     }
   }, [firmwareVersion]);
@@ -142,11 +169,11 @@ function App() {
           setMessageDialog(true);
           return;
         } else {
-          setKnobsData(preset.knobs);
-          updatePreset(prev => ({
-            ...prev,
-            ...preset
-          }))
+          // setKnobsData(preset.knobs);
+          // updatePreset(prev => ({
+          //   ...prev,
+          //   ...preset
+          // }))
         }
       });
       reader.readAsText(file);
@@ -166,14 +193,16 @@ function App() {
   }
 
   function handleKnobDataChange(data) {
-    setKnobsData(prevKnobsData => [
-      ...prevKnobsData.slice(0, selectedKnobIndex),
-      {
-        ...prevKnobsData[selectedKnobIndex],
-        ...data
-      },
-      ...prevKnobsData.slice(selectedKnobIndex + 1)
-    ]);
+    // setKnobsData(prevKnobsData => prevKnobsData.map((knobData, index) => {
+    //   if (index === selectedKnobIndex) {
+    //     return {
+    //       ...knobData,
+    //       ...data
+    //     }
+    //   } else {
+    //     return knobData;
+    //   }
+    // }));
   }
 
   const handleCloseSystemDialog = () => {
@@ -182,14 +211,14 @@ function App() {
   }
 
   function handleReadFromDevice(data, knobIndex) {
-    setKnobsData(prevKnobsData => [
-      ...prevKnobsData.slice(0, knobIndex),
-      {
-        ...prevKnobsData[knobIndex],
-        ...data
-      },
-      ...prevKnobsData.slice(knobIndex + 1)
-    ]);
+    // setKnobsData(prevKnobsData => [
+    //   ...prevKnobsData.slice(0, knobIndex),
+    //   {
+    //     ...prevKnobsData[knobIndex],
+    //     ...data
+    //   },
+    //   ...prevKnobsData.slice(knobIndex + 1)
+    // ]);
   }
 
   const handleProgramChange = event => {
@@ -208,26 +237,46 @@ function App() {
       switch (dataBytes[0]) {
         case SEND_FIRMWARE_VERSION:
           if (dataBytes.length > 2) {
-            setFirmwareVersion(dataBytes.slice(1));
+            // setFirmwareVersion(dataBytes.slice(1));
+            dispatch({
+              type: "setFirmwareVersion",
+              firmwareVersion: dataBytes.slice(1)
+            });
           }
           break;
         case SYNC_KNOBS:
           if (dataBytes.length > 7) {
-            const knobIndex = findIndex(knobsDataRef.current, knob => knob.hardwareId === dataBytes[1]);
+            const knobIndex = findIndex(currentPreset.knobs, knob => knob.hardwareId === dataBytes[1]);
             if (knobIndex > -1) {
-              if (firmwareVersionRef.current[0] < 30) {
-                knobData = {
-                  ...knobsDataRef.current[knobIndex],
-                  mode: dataBytes[5],
-                  msb: dataBytes[2],
-                  lsb: dataBytes[3],
-                  channel: dataBytes[4],
-                  invert_a: Boolean(dataBytes[6]),
-                  invert_b: Boolean(dataBytes[7])
-                };
+              switch (firmwareVersion[0]) {
+                case this < 30:
+                  knobData = {
+                    ...currentPreset.knobs[knobIndex],
+                    mode: dataBytes[5],
+                    msb: dataBytes[2],
+                    lsb: dataBytes[3],
+                    channel: dataBytes[4],
+                    invert_a: Boolean(dataBytes[6]),
+                    invert_b: Boolean(dataBytes[7])
+                  };
+                  break;
+
+                default:
+                  break;
+              }
+              if (firmwareVersion[0] < 30) {
+                // knobData = {
+                //   ...knobsDataRef.current[knobIndex],
+                //   mode: dataBytes[5],
+                //   msb: dataBytes[2],
+                //   lsb: dataBytes[3],
+                //   channel: dataBytes[4],
+                //   invert_a: Boolean(dataBytes[6]),
+                //   invert_b: Boolean(dataBytes[7])
+                // };
               } else {
                 knobData = {
-                  ...knobsDataRef.current[knobIndex],
+                  ...currentPreset.knobs[knobIndex],
                   MSBFirst: Boolean(dataBytes[2]),
                   valuesIndex: dataBytes[3],
                   minValue: (dataBytes[4] << 4) | dataBytes[5],
@@ -241,17 +290,23 @@ function App() {
                   knobData.sysExMessage.push(dataBytes[byteIndex + 10].toString(16).padStart(2, '0'));
                 }
               }
-              handleReadFromDevice(knobData, knobIndex);
+              // handleReadFromDevice(knobData, knobIndex);
+              dispatch({
+                type: "setKnob",
+                currentKnob: {
+                  ...knobData
+                }
+              })
             }
           }
           break;
 
         case SET_THRU_MODE:
           const thruMode = dataBytes[1];
-          updatePreset(prev => ({
-            ...prev,
-            thruMode
-          }));
+          // updatePreset(prev => ({
+          //   ...prev,
+          //   thruMode
+          // }));
           break;
 
         default:
@@ -260,7 +315,6 @@ function App() {
     }
   }
 
-
   function handleSysExChange(sysExMessage) {
     if (sysExMessage.length > 10) return; // Limit sysEx data
     handleKnobDataChange({ sysExMessage });
@@ -268,7 +322,7 @@ function App() {
 
   function handleSysExMSBLSBSwitch() {
     handleKnobDataChange({
-      MSBFirst: !knobsData[selectedKnobIndex].MSBFirst
+      MSBFirst: !currentPreset.knobs[selectedKnobIndex].MSBFirst
     });
   }
 
@@ -279,10 +333,10 @@ function App() {
   }
   function handleIsSignedChange(event) {
     const isSigned = event.target.checked;
-    const minValue = isSigned ? 0 : knobsData[selectedKnobIndex].minValue;
+    const minValue = isSigned ? 0 : currentPreset.knobs[selectedKnobIndex].minValue;
     const maxValue =
-      isSigned && knobsData[selectedKnobIndex].maxValue > 127 ?
-        127 : knobsData[selectedKnobIndex].maxValue;
+      isSigned && currentPreset.knobs[selectedKnobIndex].maxValue > 127 ?
+        127 : currentPreset.knobs[selectedKnobIndex].maxValue;
     handleKnobDataChange({
       isSigned,
       minValue,
@@ -305,7 +359,7 @@ function App() {
       mode: parseInt(event.target.value)
     };
     if (newData.mode === ModeIndexes.KNOB_MODE_HIRES) {
-      if (knobsData[selectedKnobIndex].msb > 31) {
+      if (currentPreset.knobs[selectedKnobIndex].msb > 31) {
         newData = {
           ...newData,
           msb: 0,
@@ -314,7 +368,7 @@ function App() {
       } else {
         newData = {
           ...newData,
-          lsb: knobsData[selectedKnobIndex].msb + 32
+          lsb: currentPreset.knobs[selectedKnobIndex].msb + 32
         }
       }
     }
@@ -324,6 +378,39 @@ function App() {
   function handleChannelChange(event) {
     handleKnobDataChange({
       channel: parseInt(event.target.value)
+    });
+  }
+
+  function handleChannelAChange(event) {
+    handleKnobDataChange({
+      channel_a: parseInt(event.target.value)
+    });
+  }
+
+  function handleChannelBChange(event) {
+    handleKnobDataChange({
+      channel_b: parseInt(event.target.value)
+    });
+  }
+
+  function handleMinAChange(event) {
+    handleKnobDataChange({
+      min_a: parseInt(event.target.value)
+    });
+  }
+  function handleMaxAChange(event) {
+    handleKnobDataChange({
+      max_a: parseInt(event.target.value)
+    });
+  }
+  function handleMinBChange(event) {
+    handleKnobDataChange({
+      min_b: parseInt(event.target.value)
+    });
+  }
+  function handleMaxBChange(event) {
+    handleKnobDataChange({
+      max_b: parseInt(event.target.value)
     });
   }
 
@@ -367,10 +454,10 @@ function App() {
   }
 
   function handleThruModeChange(thruMode) {
-    updatePreset(prev => ({
-      ...prev,
-      thruMode: thruMode.target.value
-    }));
+    // updatePreset(prev => ({
+    //   ...prev,
+    //   thruMode: thruMode.target.value
+    // }));
   }
 
   return (
@@ -404,7 +491,7 @@ function App() {
                 </Typography>
                 {deviceIsConnected && firmwareVersion &&
                   <Typography sx={{ pt: 1 }} variant="body2" component="div">
-                    {midiDeviceName} < Typography variant="caption" sx={{ color: "#808080" }} >(v.{firmwareVersion.join('.')})</Typography>
+                    {midiDeviceName} < Typography variant="caption" sx={{ color: "#808080" }} >(v{firmwareVersion.join('.')})</Typography>
                     {firmwareVersion[0] > 29 &&
                       " - SysEx"
                     }
@@ -475,7 +562,7 @@ function App() {
           <ConnectDevice />
         }
 
-        {deviceIsConnected && firmwareVersion && knobsData &&
+        {deviceIsConnected && firmwareVersion && currentPreset &&
           <Stack
             direction="row"
             divider={<Divider orientation="vertical" flexItem />}
@@ -484,7 +571,7 @@ function App() {
           >
             <Stack>
               <N32B
-                knobsData={knobsData}
+                knobsData={currentPreset.knobs}
                 selectedKnobIndex={selectedKnobIndex}
                 setSelectedKnob={setSelectedKnobIndex}
               />
@@ -495,7 +582,7 @@ function App() {
               sx={{ flexGrow: 1 }}
               spacing={2}
             >
-              {firmwareVersion[0] > 29 &&
+              {firmwareVersion[0] > 3 &&
                 <>
                   <ThruMode
                     thruMode={currentPreset.thruMode}
@@ -506,23 +593,31 @@ function App() {
                 </>
               }
               <Typography variant="h5" component="div" gutterBottom>
-                Editing Knob: <span className="currentKnob">{knobsData[selectedKnobIndex].id}</span>
+                Editing Knob: <span className="currentKnob">{currentPreset.knobs[selectedKnobIndex].id}</span>
               </Typography>
               {firmwareVersion[0] < 30 &&
                 <Editor
-                  currentKnob={knobsData[selectedKnobIndex]}
+                  currentKnob={currentPreset.knobs[selectedKnobIndex]}
                   handleChannelChange={handleChannelChange}
+                  handleChannelAChange={handleChannelAChange}
+                  handleChannelBChange={handleChannelBChange}
+                  handleMinAChange={handleMinAChange}
+                  handleMaxAChange={handleMaxAChange}
+                  handleMinBChange={handleMinBChange}
+                  handleMaxBChange={handleMaxBChange}
                   handleMSBChange={handleMSBChange}
                   handleLSBChange={handleLSBChange}
                   handleInvertValueAChange={handleInvertValueAChange}
                   handleInvertValueBChange={handleInvertValueBChange}
                   handleHiResChange={handleHiResChange}
                   handleModeSelect={handleModeSelect}
+                  firmwareVersion={firmwareVersion}
+                  dispatch={dispatch}
                 />
               }
               {firmwareVersion[0] > 29 &&
                 <SysExEditor
-                  currentKnob={knobsData[selectedKnobIndex]}
+                  currentKnob={currentPreset.knobs[selectedKnobIndex]}
                   handleSysExChange={handleSysExChange}
                   handleSysExMSBLSBSwitch={handleSysExMSBLSBSwitch}
                   handleMinValueChange={handleMinValueChange}

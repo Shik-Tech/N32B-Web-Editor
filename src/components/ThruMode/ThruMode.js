@@ -9,12 +9,12 @@ import { map } from 'lodash';
 
 function ThruMode({ thruMode, handleThruModeChange, thruOptions }) {
     return (
-        <FormControl fullWidth>
-            <InputLabel id="thru-mode-label">Thru Mode</InputLabel>
+        <FormControl fullWidth size="small">
+            <InputLabel id="thru-mode-label">Preset Thru Mode</InputLabel>
             <Select
                 labelId="thru-mode-label"
                 id="thru-mode-select"
-                label="Thru Mode"
+                label="Preset Thru Mode"
 
                 value={thruMode}
                 onChange={handleThruModeChange}
