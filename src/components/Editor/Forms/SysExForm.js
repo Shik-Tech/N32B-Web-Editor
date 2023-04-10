@@ -21,6 +21,7 @@ import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRou
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SwapHorizRoundedIcon from '@mui/icons-material/SwapHorizRounded';
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
+import { validateValueRange } from "../../UpdateDevice/utils";
 
 const ListItem = styled('li')(({ theme }) => ({
     margin: theme.spacing(0.3),
@@ -48,18 +49,56 @@ function SysExForm({
         maxValue,
         isSigned
     },
-    handleSysExChange,
-    handleSysExMSBLSBSwitch,
-    handleMinValueChange,
-    handleMaxValueChange,
-    handleSysExValuesIndexChange,
-    handleIsSignedChange
+    currentKnob,
+    handleKnobDataChange,
 }) {
     const classes = useStyles();
     const [editChipIndex, setEditChipIndex] = useState(-1);
     const [currentEditValue, setCurrentEditValue] = useState();
     const [fullSysExMessage, setFullSysExMessage] = useState([]);
     const MSBLSB_PLACEHOLDER = "MSBLSB_PLACEHOLDER";
+
+    function handleSysExChange(currentKnob, sysExMessage) {
+        if (sysExMessage.length > 10) return; // Limit sysEx data
+        handleKnobDataChange(currentKnob, { sysExMessage });
+    }
+    function handleSysExMSBLSBSwitch() {
+        handleKnobDataChange(
+            currentKnob, {
+            MSBFirst: currentKnob.MSBFirst
+        });
+    }
+    function handleSysExValuesIndexChange(valuesIndex) {
+        handleKnobDataChange(
+            currentKnob, {
+            valuesIndex
+        });
+    }
+    function handleIsSignedChange(event) {
+        const isSigned = event.target.checked;
+        const minValue = isSigned ? 0 : currentKnob.minValue;
+        const maxValue =
+            isSigned && currentKnob.maxValue > 127 ?
+                127 : currentKnob.maxValue;
+        handleKnobDataChange(
+            currentKnob, {
+            isSigned,
+            minValue,
+            maxValue
+        });
+    }
+    function handleMinValueChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            minValue: validateValueRange(event.target)
+        });
+    }
+    function handleMaxValueChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            maxValue: validateValueRange(event.target)
+        });
+    }
 
     useEffect(() => {
         const newFullSysExMessage = [];
@@ -83,7 +122,7 @@ function SysExForm({
         const msbLsbIndex = newSysExMessage.indexOf(MSBLSB_PLACEHOLDER);
         newSysExMessage.splice(msbLsbIndex, 1);
         handleSysExValuesIndexChange(msbLsbIndex);
-        handleSysExChange(newSysExMessage);
+        handleSysExChange(currentKnob, newSysExMessage);
     };
 
     const handleDelete = index => () => {
@@ -92,7 +131,7 @@ function SysExForm({
         const msbLsbIndex = newSysExMessage.indexOf(MSBLSB_PLACEHOLDER);
         newSysExMessage.splice(msbLsbIndex, 1);
         handleSysExValuesIndexChange(msbLsbIndex);
-        handleSysExChange(newSysExMessage);
+        handleSysExChange(currentKnob, newSysExMessage);
     };
 
     function handleByteChange(event) {
@@ -118,14 +157,14 @@ function SysExForm({
         const msbLsbIndex = newSysExMessage.indexOf(MSBLSB_PLACEHOLDER);
         newSysExMessage.splice(msbLsbIndex, 1);
         handleSysExValuesIndexChange(msbLsbIndex);
-        handleSysExChange(newSysExMessage);
+        handleSysExChange(currentKnob, newSysExMessage);
         setCurrentEditValue();
         setEditChipIndex(-1);
     }
     const addMessageByte = () => {
         const newSysExMessage = [...sysExMessage];
         newSysExMessage.push("00");
-        handleSysExChange(newSysExMessage);
+        handleSysExChange(currentKnob, newSysExMessage);
         // setEditChipIndex(fullSysExMessage.length);
     }
 

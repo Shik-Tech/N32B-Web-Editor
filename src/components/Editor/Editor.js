@@ -14,13 +14,35 @@ import { useDataDispatch } from "../../reducer/context";
 function Editor(props) {
     const {
         currentKnob,
-        handleModeSelect,
-        handleChannelChange,
-        handleChannelAChange,
+        handleKnobDataChange,
         firmwareVersion,
-        dispatch
     } = props;
 
+    function handleChannelChange(event) {
+        if (firmwareVersion[0] < 4) {
+            handleKnobDataChange(
+                currentKnob, {
+                channel: parseInt(event.target.value)
+            });
+        } else if (firmwareVersion[0] > 3) {
+            handleKnobDataChange(
+                currentKnob, {
+                channel_a: parseInt(event.target.value)
+            });
+        }
+    }
+
+    function handleModeSelect(e) {
+        dispatch({
+            type: "modeChanged",
+            currentKnob: {
+                ...currentKnob,
+                mode: parseInt(e.target.value)
+            }
+        });
+    }
+
+    const dispatch = useDataDispatch();
     const displayForms = [
         <></>,
         <ControlChangeForm {...props} />,
@@ -41,15 +63,7 @@ function Editor(props) {
                     id="mode-select"
                     label="Knob Mode"
                     value={currentKnob.mode}
-                    onChange={e => {
-                        dispatch({
-                            type: "modeChanged",
-                            currentKnob: {
-                                ...currentKnob,
-                                mode: parseInt(e.target.value)
-                            }
-                        })
-                    }}
+                    onChange={handleModeSelect}
                 >
                     {map(Modes, mode =>
                         <MenuItem value={mode.value} key={mode.value}>{mode.name}</MenuItem>
@@ -61,20 +75,10 @@ function Editor(props) {
                 currentKnob.mode !== ModeIndexes.KNOB_MODE_MACRO &&
                 <FormControl fullWidth size="small">
                     <InputLabel id="channel-select-label">Channel</InputLabel>
-                    {
-                        firmwareVersion[0] < 4 &&
-                        <ChannelSelect
-                            channel={currentKnob.channel}
-                            handleChannelChange={handleChannelChange}
-                            label="Channel" />
-                    }
-                    {
-                        firmwareVersion[0] > 3 &&
-                        <ChannelSelect
-                            channel={currentKnob.channel_a}
-                            handleChannelChange={handleChannelAChange}
-                            label="Channel" />
-                    }
+                    <ChannelSelect
+                        channel={firmwareVersion[0] < 4 ? currentKnob.channel : currentKnob.channel_a}
+                        handleChannelChange={handleChannelChange}
+                        label="Channel" />
                 </FormControl>
             }
             {displayForms[currentKnob.mode]}
