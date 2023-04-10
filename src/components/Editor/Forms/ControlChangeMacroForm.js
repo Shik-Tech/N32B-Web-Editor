@@ -13,11 +13,11 @@ import ChannelSelect from "../Components/ChannelSelect";
 
 function ControlChangeMacroForm({
     currentKnob,
+    firmwareVersion,
     handleMSBChange,
     handleLSBChange,
     handleInvertValueAChange,
     handleInvertValueBChange,
-    firmwareVersion,
     handleChannelAChange,
     handleChannelBChange,
     handleMinAChange,

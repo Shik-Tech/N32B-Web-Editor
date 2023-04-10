@@ -10,13 +10,23 @@ import {
 } from "./Forms";
 import { ModeIndexes, Modes } from "./Modes";
 import { useDataDispatch } from "../../reducer/context";
+import { validateValueRange } from "../UpdateDevice/utils";
 
 function Editor(props) {
     const {
         currentKnob,
-        handleKnobDataChange,
         firmwareVersion,
     } = props;
+
+    function handleKnobDataChange(currentKnob, data = {}) {
+        dispatch({
+            type: "updateKnobData",
+            currentKnob: {
+                ...currentKnob,
+                ...data
+            }
+        });
+    }
 
     function handleChannelChange(event) {
         if (firmwareVersion[0] < 4) {
@@ -42,14 +52,112 @@ function Editor(props) {
         });
     }
 
+    function handleChannelAChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            channel_a: parseInt(event.target.value)
+        });
+    }
+
+    function handleChannelBChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            channel_b: parseInt(event.target.value)
+        });
+    }
+    function handleMinAChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            min_a: parseInt(event.target.value)
+        });
+    }
+    function handleMaxAChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            max_a: parseInt(event.target.value)
+        });
+    }
+    function handleMinBChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            min_b: parseInt(event.target.value)
+        });
+    }
+    function handleMaxBChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            max_b: parseInt(event.target.value)
+        });
+    }
+
+    function handleMSBChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            msb: validateValueRange(event.target)
+        });
+    }
+    function handleLSBChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            lsb: validateValueRange(event.target)
+        });
+    }
+
+    function handleHiResChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            msb: validateValueRange(event.target),
+            lsb: validateValueRange(event.target) + 32
+        });
+    }
+
+    function handleInvertValueAChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            invert_a: event.target.checked
+        });
+    }
+
+    function handleInvertValueBChange(event) {
+        handleKnobDataChange(
+            currentKnob, {
+            invert_b: event.target.checked
+        });
+    }
+
+
+    const formStandardProps = {
+        handleMSBChange,
+        handleInvertValueAChange
+    }
+
+    const formMacroProps = {
+        handleMSBChange,
+        handleLSBChange,
+        handleInvertValueAChange,
+        handleInvertValueBChange,
+        handleChannelAChange,
+        handleChannelBChange,
+        handleMinAChange,
+        handleMaxAChange,
+        handleMinBChange,
+        handleMaxBChange
+    };
+
+    const formRPNProps = {
+        handleMSBChange,
+        handleLSBChange,
+        handleInvertValueAChange
+    }
+
     const dispatch = useDataDispatch();
     const displayForms = [
         <></>,
-        <ControlChangeForm {...props} />,
-        <ControlChangeMacroForm {...props} />,
-        <ControlChangeRPNForm {...props} />,
-        <ControlChangeRPNForm {...props} />,
-        <ControlChangeHiResForm {...props} />
+        <ControlChangeForm {...props} {...formStandardProps} />,
+        <ControlChangeMacroForm {...props} {...formMacroProps} />,
+        <ControlChangeRPNForm {...props} {...formRPNProps} />,
+        <ControlChangeRPNForm {...props} {...formStandardProps} />,
+        <ControlChangeHiResForm {...props} {...formStandardProps} />
     ];
 
     return (

@@ -12,8 +12,6 @@ import {
   SystemMessages,
   ThruMode
 } from './components';
-// import defaultPresets from './presetTemplates/default';
-// import sysExPreset from './presetTemplates/default/sysEx.json';
 import logo from './components/images/shik-logo-small.png';
 import './App.css';
 import { Container } from '@mui/system';
@@ -28,7 +26,6 @@ import {
 } from '@mui/material';
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded';
 import SimCardDownloadRoundedIcon from '@mui/icons-material/SimCardDownloadRounded';
-import { validateValueRange } from './components/UpdateDevice/utils';
 import { SEND_FIRMWARE_VERSION, SET_THRU_MODE, SYNC_KNOBS } from './components/UpdateDevice/commands';
 import { ThruOptions } from './components/ThruMode/ThruOptions';
 import { useData, useDataDispatch } from './reducer/context';
@@ -109,23 +106,12 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [midiOutput, midiInput]);
 
-  // useEffect(() => {
-  //   updatePreset(prev => ({
-  //     ...prev,
-  //     presetID: currentDevicePresetIndex
-  //   }));
-
-  //   if (midiOutput) {
-  //     midiOutput.sendProgramChange(currentDevicePresetIndex, 1);
-  //   }
-  // }, [currentDevicePresetIndex, midiOutput]);
-
-
   const fileInput = useRef(null);
   const handleFileInputClick = event => {
     event.target.value = null;
     fileInput.current.click();
   }
+  
   const handleLoadPreset = e => {
     const reader = new FileReader();
     if (fileInput.current.files.length > 0) {
@@ -156,6 +142,7 @@ function App() {
       reader.readAsText(file);
     }
   }
+
   const handleSavePreset = async () => {
     const fileName = `N32B-Preset-${currentPreset.presetName}`;
     const json = JSON.stringify(currentPreset);
@@ -173,16 +160,6 @@ function App() {
     dispatch({
       type: "setSelectedKnobIndex",
       selectedKnobIndex
-    });
-  }
-
-  function handleKnobDataChange(currentKnob, data = {}) {
-    dispatch({
-      type: "updateKnobData",
-      currentKnob: {
-        ...currentKnob,
-        ...data
-      }
     });
   }
 
@@ -275,7 +252,10 @@ function App() {
                   break;
               }
 
-              handleKnobDataChange(knobData);
+              dispatch({
+                type: "updateKnobData",
+                currentKnob: knobData
+              });
             }
           }
           break;
@@ -294,70 +274,6 @@ function App() {
     }
   }
 
-
-  // function handleChannelAChange(event) {
-  //   handleKnobDataChange(
-  //     currentKnob, {
-  //     channel_a: parseInt(event.target.value)
-  //   });
-  // }
-
-  // function handleChannelBChange(event) {
-  //   handleKnobDataChange(
-  //     currentKnob, {
-  //     channel_b: parseInt(event.target.value)
-  //   });
-  // }
-  function handleMinAChange(event) {
-    handleKnobDataChange({
-      min_a: parseInt(event.target.value)
-    });
-  }
-  function handleMaxAChange(event) {
-    handleKnobDataChange({
-      max_a: parseInt(event.target.value)
-    });
-  }
-  function handleMinBChange(event) {
-    handleKnobDataChange({
-      min_b: parseInt(event.target.value)
-    });
-  }
-  function handleMaxBChange(event) {
-    handleKnobDataChange({
-      max_b: parseInt(event.target.value)
-    });
-  }
-
-  function handleMSBChange(event) {
-    handleKnobDataChange({
-      msb: validateValueRange(event.target)
-    });
-  }
-  function handleLSBChange(event) {
-    handleKnobDataChange({
-      lsb: validateValueRange(event.target)
-    });
-  }
-
-  function handleHiResChange(event) {
-    handleKnobDataChange({
-      msb: validateValueRange(event.target),
-      lsb: validateValueRange(event.target) + 32
-    });
-  }
-
-  function handleInvertValueAChange(event) {
-    handleKnobDataChange({
-      invert_a: event.target.checked
-    });
-  }
-
-  function handleInvertValueBChange(event) {
-    handleKnobDataChange({
-      invert_b: event.target.checked
-    });
-  }
   const handleGetDeviceFirmwareVersion = () => {
     midiOutput.sendSysex(32, [SEND_FIRMWARE_VERSION]);
   }
@@ -369,10 +285,10 @@ function App() {
   }
 
   function handleThruModeChange(thruMode) {
-    // updatePreset(prev => ({
-    //   ...prev,
-    //   thruMode: thruMode.target.value
-    // }));
+    dispatch({
+      type: "updateMidiThru",
+      thruMode: thruMode.target.value
+    });
   }
 
   return (
@@ -513,24 +429,12 @@ function App() {
               {firmwareVersion[0] < 30 &&
                 <Editor
                   currentKnob={currentPreset.knobs[selectedKnobIndex]}
-                  handleKnobDataChange={handleKnobDataChange}
-
-                  handleMinAChange={handleMinAChange}
-                  handleMaxAChange={handleMaxAChange}
-                  handleMinBChange={handleMinBChange}
-                  handleMaxBChange={handleMaxBChange}
-                  handleMSBChange={handleMSBChange}
-                  handleLSBChange={handleLSBChange}
-                  handleInvertValueAChange={handleInvertValueAChange}
-                  handleInvertValueBChange={handleInvertValueBChange}
-                  handleHiResChange={handleHiResChange}
                   firmwareVersion={firmwareVersion}
                 />
               }
               {firmwareVersion[0] > 29 &&
                 <SysExEditor
                   currentKnob={currentPreset.knobs[selectedKnobIndex]}
-                  handleKnobDataChange={handleKnobDataChange}
                 />
               }
             </Stack>
