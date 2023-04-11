@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux'
 import { findIndex } from 'lodash';
 import { WebMidi } from "webmidi";
 import {
@@ -28,22 +29,42 @@ import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded';
 import SimCardDownloadRoundedIcon from '@mui/icons-material/SimCardDownloadRounded';
 import { SEND_FIRMWARE_VERSION, SET_THRU_MODE, SYNC_KNOBS } from './components/UpdateDevice/commands';
 import { ThruOptions } from './components/ThruMode/ThruOptions';
-import { useData, useDataDispatch } from './reducer/context';
 import { byteString } from './utils';
+import {
+  setDeviceIsConnected,
+  setFirmwareVersion,
+  setMidiDeviceName,
+  setMidiInput,
+  setMidiOutput,
+  setSystemMessage
+} from './app/slices/deviceReducer';
+import {
+  setPreset,
+  setSelectedKnobIndex,
+  updateCurrentDevicePresetIndex,
+  updateKnobData,
+  updateMidiThru,
+  updatePreset
+} from './app/slices/presetReducer';
 
 function App() {
-  const dispatch = useDataDispatch();
   const {
     firmwareVersion,
-    currentPreset,
     deviceIsConnected,
     midiInput,
     midiOutput,
     midiDeviceName,
     systemMessage,
-    openMessageDialog,
+    openMessageDialog
+  } = useSelector(state => state.device);
+
+  const {
+    currentPreset,
     selectedKnobIndex
-  } = useData();
+  } = useSelector(state => state.preset);
+
+  const dispatch = useDispatch();
+
   const appVersion = 'v2.2.1';
 
   useEffect(() => {
@@ -53,38 +74,17 @@ function App() {
       }
       WebMidi.addListener("connected", function (event) {
         if (WebMidi.getInputByName("N32B")) {
-          dispatch({
-            type: "setMidiInput",
-            midiInput: WebMidi.getInputByName("N32B")
-          });
-          dispatch({
-            type: "setMidiOutput",
-            midiOutput: WebMidi.getOutputByName("N32B")
-          });
-          dispatch({
-            type: "setDeviceIsConnected",
-            deviceIsConnected: true
-          });
+          dispatch(setMidiInput(WebMidi.getInputByName("N32B")));
+          dispatch(setMidiOutput(WebMidi.getOutputByName("N32B")));
+          dispatch(setDeviceIsConnected(true));
         }
       });
 
       WebMidi.addListener("disconnected", function (event) {
-        dispatch({
-          type: "setDeviceIsConnected",
-          deviceIsConnected: false
-        });
-        dispatch({
-          type: "updateCurrentDevicePresetIndex",
-          currentDevicePresetIndex: 0
-        });
-        dispatch({
-          type: "setMidiInput",
-          midiInput: null
-        });
-        dispatch({
-          type: "setMidiOutput",
-          midiOutput: null
-        });
+        dispatch(setDeviceIsConnected(false));
+        dispatch(updateCurrentDevicePresetIndex(0));
+        dispatch(setMidiInput(null));
+        dispatch(setMidiOutput(null));
       });
     }, true);
   });
@@ -93,11 +93,8 @@ function App() {
     if (midiOutput && midiInput) {
       // midiInput.addListener('programchange', undefined, handlePresetChange);
       midiInput.addListener('sysex', 'all', handleSysex);
-      handleGetDeviceFirmwareVersion();
-      dispatch({
-        type: "setMidiDeviceName",
-        midiDeviceName: midiOutput.name
-      });
+      midiOutput.sendSysex(32, [SEND_FIRMWARE_VERSION]);
+      dispatch(setMidiDeviceName(midiOutput.name));
 
       return () => {
         // midiInput.removeListener('programchange', undefined, handlePresetChange);
@@ -124,20 +121,11 @@ function App() {
           ((firmwareVersion[0] === 2 || firmwareVersion[0] === 3) && preset.presetVersion > 2) ||
           (firmwareVersion[0] === 4 && preset.presetVersion !== 4)
         ) {
-          dispatch({
-            type: "setSystemMessage",
-            systemMessage: "The preset version is not matching the device firmware."
-          });
-          dispatch({
-            type: "setMessageDialog",
-            openMessageDialog: true
-          });
+          dispatch(setSystemMessage("The preset version is not matching the device firmware."));
+          dispatch(openMessageDialog(true));
           return;
         } else {
-          dispatch({
-            type: "updatePreset",
-            preset
-          });
+          dispatch(updatePreset(preset));
         }
       });
       reader.readAsText(file);
@@ -157,34 +145,22 @@ function App() {
     document.body.removeChild(link);
   }
 
-  function setSelectedKnobIndex(selectedKnobIndex) {
-    dispatch({
-      type: "setSelectedKnobIndex",
-      selectedKnobIndex
-    });
+  function handleSelectedKnobIndex(selectedKnobIndex) {
+    dispatch(setSelectedKnobIndex(selectedKnobIndex));
   }
 
   const handleCloseSystemDialog = () => {
-    dispatch({
-      type: "setMessageDialog",
-      openMessageDialog: false
-    });
-    dispatch({
-      type: "setSystemMessage",
-      systemMessage: null
-    });
+    dispatch(openMessageDialog(false));
+    dispatch(setSystemMessage(null));
   }
 
   const handlePresetChange = e => {
     const presetIndex = parseInt(e.target.value);
-    dispatch({
-      type: "updateCurrentDevicePresetIndex",
-      currentDevicePresetIndex: presetIndex
-    });
+    dispatch(updateCurrentDevicePresetIndex(presetIndex));
     midiOutput.sendProgramChange(presetIndex, 1);
   }
 
-  function handleSysex(e) {
+  const handleSysex = e => {
     const {
       dataBytes,
       message: {
@@ -196,10 +172,9 @@ function App() {
       switch (dataBytes[0]) {
         case SEND_FIRMWARE_VERSION:
           if (dataBytes.length > 2) {
-            dispatch({
-              type: "setFirmwareVersion",
-              firmwareVersion: dataBytes.slice(1)
-            });
+            const firmwareVersion = dataBytes.slice(1);
+            dispatch(setFirmwareVersion(firmwareVersion));
+            dispatch(setPreset(firmwareVersion));
           }
           break;
         case SYNC_KNOBS:
@@ -261,20 +236,14 @@ function App() {
                   break;
               }
 
-              dispatch({
-                type: "updateKnobData",
-                currentKnob
-              });
+              dispatch(updateKnobData(currentKnob));
             }
           }
           break;
 
         case SET_THRU_MODE:
           const thruMode = dataBytes[1];
-          dispatch({
-            type: "updateMidiThru",
-            thruMode
-          });
+          dispatch(updateMidiThru(thruMode));
           break;
 
         default:
@@ -282,9 +251,13 @@ function App() {
       }
     }
   }
-
-  const handleGetDeviceFirmwareVersion = () => {
-    midiOutput.sendSysex(32, [SEND_FIRMWARE_VERSION]);
+  function handleKnobDataChange(currentKnob, data = {}) {
+    dispatch(updateKnobData(
+      {
+        ...currentKnob,
+        ...data
+      }
+    ));
   }
   const handleLoadFromDevice = () => {
     midiOutput.sendSysex(32, [SYNC_KNOBS]);
@@ -294,10 +267,7 @@ function App() {
   }
 
   function handleThruModeChange(thruMode) {
-    dispatch({
-      type: "updateMidiThru",
-      thruMode: thruMode.target.value
-    });
+    dispatch(updateMidiThru(thruMode.target.value));
   }
 
   return (
@@ -413,7 +383,7 @@ function App() {
               <N32B
                 knobsData={currentPreset.knobs}
                 selectedKnobIndex={selectedKnobIndex}
-                setSelectedKnob={setSelectedKnobIndex}
+                setSelectedKnob={handleSelectedKnobIndex}
               />
               <Version appVersion={appVersion} />
             </Stack>
@@ -437,12 +407,14 @@ function App() {
               </Typography>
               {firmwareVersion[0] < 30 &&
                 <Editor
+                  handleKnobDataChange={handleKnobDataChange}
                   currentKnob={currentPreset.knobs[selectedKnobIndex]}
                   firmwareVersion={firmwareVersion}
                 />
               }
               {firmwareVersion[0] > 29 &&
                 <SysExEditor
+                  handleKnobDataChange={handleKnobDataChange}
                   currentKnob={currentPreset.knobs[selectedKnobIndex]}
                 />
               }

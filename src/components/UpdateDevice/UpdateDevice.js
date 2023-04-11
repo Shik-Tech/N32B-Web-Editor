@@ -113,6 +113,7 @@ function UpdateDevice(props) {
         forEach(messages, (message, key) => {
             promise = promise.then(() => {
                 setProgress((key + 1) * 100 / messages.length);
+                console.log(message);
                 midiOutput.sendSysex(32, message);
 
                 return new Promise(resolve => {

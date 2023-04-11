@@ -1,6 +1,7 @@
-import { FormControl, InputLabel, MenuItem, Select, Stack } from "@mui/material";
 import { map } from "lodash";
 import React from "react";
+import { useDispatch } from 'react-redux'
+import { FormControl, InputLabel, MenuItem, Select, Stack } from "@mui/material";
 import ChannelSelect from "./Components/ChannelSelect";
 import {
     ControlChangeMacroForm,
@@ -9,24 +10,17 @@ import {
     ControlChangeRPNForm
 } from "./Forms";
 import { ModeIndexes, Modes } from "./Modes";
-import { useDataDispatch } from "../../reducer/context";
 import { validateValueRange } from "../UpdateDevice/utils";
+import { updateKnobMode } from "../../app/slices/presetReducer";
 
 function Editor(props) {
     const {
         currentKnob,
         firmwareVersion,
+        handleKnobDataChange
     } = props;
 
-    function handleKnobDataChange(currentKnob, data = {}) {
-        dispatch({
-            type: "updateKnobData",
-            currentKnob: {
-                ...currentKnob,
-                ...data
-            }
-        });
-    }
+    const dispatch = useDispatch();
 
     function handleChannelChange(event) {
         handleKnobDataChange(
@@ -36,13 +30,7 @@ function Editor(props) {
     }
 
     function handleModeSelect(e) {
-        dispatch({
-            type: "modeChanged",
-            currentKnob: {
-                ...currentKnob,
-                mode: parseInt(e.target.value)
-            }
-        });
+        dispatch(updateKnobMode({ mode: parseInt(e.target.value), currentKnob }));
     }
 
     function handleChannelAChange(event) {
@@ -147,7 +135,6 @@ function Editor(props) {
         handleInvertValueAChange
     }
 
-    const dispatch = useDataDispatch();
     const displayForms = [
         <></>,
         <ControlChangeForm {...props} {...formStandardProps} />,
