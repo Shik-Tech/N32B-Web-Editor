@@ -1,5 +1,4 @@
 import React, { Fragment, useState } from 'react';
-import { generateSysExFromPreset, generateSysExFromPresetV2, generateSysExFromPresetV3 } from './utils';
 import { forEach, map } from 'lodash';
 import {
     Button,
@@ -20,6 +19,11 @@ import {
 } from '@mui/material';
 import DownloadingRoundedIcon from '@mui/icons-material/DownloadingRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import {
+    generateSysExFromPreset,
+    generateSysExFromPresetV2,
+    generateSysExFromPresetV3
+} from './utils';
 
 const style = {
     position: 'absolute',

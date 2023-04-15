@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
-import { findIndex } from 'lodash';
 import { WebMidi } from "webmidi";
 import {
   N32B,
@@ -27,9 +26,7 @@ import {
 } from '@mui/material';
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded';
 import SimCardDownloadRoundedIcon from '@mui/icons-material/SimCardDownloadRounded';
-import { SEND_FIRMWARE_VERSION, SET_THRU_MODE, SYNC_KNOBS } from './components/UpdateDevice/commands';
 import { ThruOptions } from './components/ThruMode/ThruOptions';
-import { byteString } from './utils';
 import {
   setDeviceIsConnected,
   setFirmwareVersion,
@@ -47,6 +44,16 @@ import {
   updatePreset
 } from './app/slices/presetReducer';
 
+import defaultPresets from './presetTemplates/default';
+import sysExPreset from './presetTemplates/default/sysEx.json'
+import {
+  SEND_FIRMWARE_VERSION,
+  SET_THRU_MODE,
+  SYNC_KNOBS
+} from './components/UpdateDevice/commands';
+import { findIndex } from 'lodash';
+import { byteString } from './utils';
+
 function App() {
   const {
     firmwareVersion,
@@ -62,105 +69,72 @@ function App() {
     currentPreset,
     selectedKnobIndex
   } = useSelector(state => state.preset);
-
   const dispatch = useDispatch();
 
-  const appVersion = 'v2.2.1';
+  const appVersion = 'v2.3.0';
+  let firmwareVersionListener = useRef();
+  let sysExListener = useRef();
 
-  useEffect(() => {
-    WebMidi.enable((err) => {
-      if (err) {
-        console.log("WebMidi could not be enabled.", err);
+  WebMidi.enable({ sysex: true }).then(() => {
+    WebMidi.waitFor("connected").then(() => {
+      const foundedInputDevice = WebMidi.getInputByName("N32B");
+      const foundedOutputDevice = WebMidi.getOutputByName("N32B");
+
+      if (foundedInputDevice && !midiInput) {
+        dispatch(setMidiInput(foundedInputDevice));
       }
-      WebMidi.addListener("connected", function (event) {
-        if (WebMidi.getInputByName("N32B")) {
-          dispatch(setMidiInput(WebMidi.getInputByName("N32B")));
-          dispatch(setMidiOutput(WebMidi.getOutputByName("N32B")));
-          dispatch(setDeviceIsConnected(true));
-        }
-      });
+      if (foundedOutputDevice && !midiOutput) {
+        dispatch(setMidiOutput(foundedOutputDevice));
+      }
+    });
 
-      WebMidi.addListener("disconnected", function (event) {
+    WebMidi.waitFor("disconnected").then(() => {
+      if (deviceIsConnected) {
         dispatch(setDeviceIsConnected(false));
         dispatch(updateCurrentDevicePresetIndex(0));
-        dispatch(setMidiInput(null));
-        dispatch(setMidiOutput(null));
-      });
-    }, true);
+      }
+    });
+
+  }).catch(err => {
+    if (err) {
+      console.log("WebMidi could not be enabled.", err);
+    }
   });
 
   useEffect(() => {
-    if (midiOutput && midiInput) {
-      // midiInput.addListener('programchange', undefined, handlePresetChange);
-      midiInput.addListener('sysex', 'all', handleSysex);
-      midiOutput.sendSysex(32, [SEND_FIRMWARE_VERSION]);
-      dispatch(setMidiDeviceName(midiOutput.name));
-
-      return () => {
-        // midiInput.removeListener('programchange', undefined, handlePresetChange);
-        midiInput.removeListener('sysex', undefined, handleSysex);
-      };
+    if (!currentPreset && firmwareVersion) {
+      let preset;
+      if (firmwareVersion > 29) {
+        preset = sysExPreset;
+      } else if (firmwareVersion < 4) {
+        preset = defaultPresets.defaultPreset_v3;
+      } else {
+        preset = defaultPresets.defaultPreset_v4;
+      }
+      dispatch(setPreset(preset));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [midiOutput, midiInput]);
+  }, [firmwareVersion, currentPreset]);
 
-  const fileInput = useRef(null);
-  const handleFileInputClick = event => {
-    event.target.value = null;
-    fileInput.current.click();
-  }
-
-  const handleLoadPreset = e => {
-    const reader = new FileReader();
-    if (fileInput.current.files.length > 0) {
-      const file = fileInput.current.files[0];
-      reader.onload = (event => {
-        const preset = JSON.parse(event.target.result);
-        if (
-          (firmwareVersion[0] > 29 && preset.presetVersion < 3) ||
-          ((firmwareVersion[0] === 2 || firmwareVersion[0] === 3) && preset.presetVersion > 2) ||
-          (firmwareVersion[0] === 4 && preset.presetVersion !== 4)
-        ) {
-          dispatch(setSystemMessage("The preset version is not matching the device firmware."));
-          dispatch(openMessageDialog(true));
-          return;
-        } else {
-          dispatch(updatePreset(preset));
-        }
-      });
-      reader.readAsText(file);
+  useEffect(() => {
+    if (midiOutput) {
+      midiOutput.sendSysex(32, [SEND_FIRMWARE_VERSION]);
+      dispatch(setMidiDeviceName(midiOutput.name));
+      dispatch(setDeviceIsConnected(true));
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [midiOutput]);
 
-  const handleSavePreset = async () => {
-    const fileName = `N32B-Preset-${currentPreset.presetName}`;
-    const json = JSON.stringify(currentPreset);
-    const blob = new Blob([json], { type: 'application/json' });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = fileName + ".json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  useEffect(() => {
+    if (midiInput) {
+      if (!firmwareVersionListener.current) {
+        firmwareVersionListener.current = midiInput.addOneTimeListener('sysex', handleSysEx);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [midiInput]);
 
-  function handleSelectedKnobIndex(selectedKnobIndex) {
-    dispatch(setSelectedKnobIndex(selectedKnobIndex));
-  }
-
-  const handleCloseSystemDialog = () => {
-    dispatch(openMessageDialog(false));
-    dispatch(setSystemMessage(null));
-  }
-
-  const handlePresetChange = e => {
-    const presetIndex = parseInt(e.target.value);
-    dispatch(updateCurrentDevicePresetIndex(presetIndex));
-    midiOutput.sendProgramChange(presetIndex, 1);
-  }
-
-  const handleSysex = e => {
+  function handleSysEx(e) {
     const {
       dataBytes,
       message: {
@@ -174,7 +148,6 @@ function App() {
           if (dataBytes.length > 2) {
             const firmwareVersion = dataBytes.slice(1);
             dispatch(setFirmwareVersion(firmwareVersion));
-            dispatch(setPreset(firmwareVersion));
           }
           break;
         case SYNC_KNOBS:
@@ -236,7 +209,7 @@ function App() {
                   break;
               }
 
-              dispatch(updateKnobData(currentKnob));
+              dispatch(updateKnobData({ currentKnob, knobIndex }));
             }
           }
           break;
@@ -251,16 +224,78 @@ function App() {
       }
     }
   }
+
+  const fileInput = useRef(null);
+  const handleFileInputClick = event => {
+    event.target.value = null;
+    fileInput.current.click();
+  }
+
+  const handleLoadPreset = e => {
+    const reader = new FileReader();
+    if (fileInput.current.files.length > 0) {
+      const file = fileInput.current.files[0];
+      reader.onload = (event => {
+        const preset = JSON.parse(event.target.result);
+        if (
+          (firmwareVersion[0] > 29 && preset.presetVersion < 3) ||
+          ((firmwareVersion[0] === 2 || firmwareVersion[0] === 3) && preset.presetVersion > 2) ||
+          (firmwareVersion[0] === 4 && preset.presetVersion !== 4)
+        ) {
+          dispatch(setSystemMessage("The preset version is not matching the device firmware."));
+          dispatch(openMessageDialog(true));
+          return;
+        } else {
+          dispatch(updatePreset(preset));
+        }
+      });
+      reader.readAsText(file);
+    }
+  }
+
+  const handleSavePreset = async () => {
+    const fileName = `N32B-Preset-${currentPreset.presetName}`;
+    const json = JSON.stringify(currentPreset);
+    const blob = new Blob([json], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function handleSelectedKnobIndex(selectedKnobIndex) {
+    dispatch(setSelectedKnobIndex(selectedKnobIndex));
+  }
+
+  const handleCloseSystemDialog = () => {
+    dispatch(openMessageDialog(false));
+    dispatch(setSystemMessage(null));
+  }
+
+  const handlePresetChange = e => {
+    const presetIndex = parseInt(e.target.value);
+    dispatch(updateCurrentDevicePresetIndex(presetIndex));
+    midiOutput.sendProgramChange(presetIndex, 1);
+  }
+
   function handleKnobDataChange(currentKnob, data = {}) {
     dispatch(updateKnobData(
       {
-        ...currentKnob,
-        ...data
+        currentKnob: {
+          ...currentKnob,
+          ...data
+        }
       }
     ));
   }
   const handleLoadFromDevice = () => {
     midiOutput.sendSysex(32, [SYNC_KNOBS]);
+    if (!sysExListener.current) {
+      sysExListener.current = midiInput.addListener('sysex', handleSysEx);
+    }
   }
   const handleFirmwareUpdate = () => {
     window.open("https://shik.tech/firmware-update/");
@@ -425,5 +460,7 @@ function App() {
     </Container >
   );
 }
+
+
 
 export default App;

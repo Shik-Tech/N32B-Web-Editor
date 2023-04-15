@@ -1,7 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ModeIndexes } from '../../components/Editor/Modes';
-import defaultPresets from '../../presetTemplates/default';
-import sysExPreset from '../../presetTemplates/default/sysEx.json'
 
 export const presetSlice = createSlice({
     name: 'device',
@@ -11,13 +9,7 @@ export const presetSlice = createSlice({
     },
     reducers: {
         setPreset: (state, action) => {
-            if (action.payload[0] > 29) {
-                state.currentPreset = sysExPreset;
-            } else if (action.payload[0] < 4) {
-                state.currentPreset = defaultPresets.defaultPreset_v3;
-            } else {
-                state.currentPreset = defaultPresets.defaultPreset_v4;
-            }
+            state.currentPreset = action.payload;
         },
         updatePreset: (state, action) => {
             state.currentPreset = action.payload;
@@ -32,7 +24,12 @@ export const presetSlice = createSlice({
             state.currentPreset.presetID = action.payload;
         },
         updateKnobData: (state, action) => {
-            state.currentPreset.knobs[state.selectedKnobIndex] = action.payload;
+            const {
+                knobIndex,
+                currentKnob
+            } = action.payload;
+
+            state.currentPreset.knobs[knobIndex ? knobIndex : state.selectedKnobIndex] = currentKnob;
         },
         updateKnobMode: (state, action) => {
             const knobState = state.currentPreset.knobs[state.selectedKnobIndex];

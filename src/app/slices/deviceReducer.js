@@ -20,6 +20,10 @@ export const deviceSlice = createSlice({
         },
         setDeviceIsConnected: (state, action) => {
             state.deviceIsConnected = action.payload;
+            if (action.payload === false) {
+                state.midiInput = null;
+                state.midiOutput = null;
+            }
         },
         setMidiDeviceName: (state, action) => {
             state.midiDeviceName = action.payload;
