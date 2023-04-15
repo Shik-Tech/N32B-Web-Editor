@@ -187,17 +187,17 @@ function App() {
                 case firmwareVersion[0] > 3:
                   const properties = byteString(dataBytes[5]);
                   const channels = byteString(dataBytes[4]);
-                  const useGlobalChannelA = Boolean(parseInt(properties.slice(5, 6), 2));
-                  const useGlobalChannelB = Boolean(parseInt(properties.slice(4, 5), 2));
+                  const useOwnChannelA = Boolean(parseInt(properties.slice(5, 6), 2));
+                  const useOwnChannelB = Boolean(parseInt(properties.slice(4, 5), 2));
                   currentKnob = {
                     ...currentPreset.knobs[knobIndex],
                     mode: parseInt(properties.slice(1, 4), 2),
                     msb: dataBytes[2],
                     lsb: dataBytes[3],
-                    channel_a: useGlobalChannelA ? 0 : parseInt(channels.slice(0, 4), 2),
-                    channel_b: useGlobalChannelB ? 0 : parseInt(channels.slice(4), 2),
-                    invert_a: Boolean(parseInt(channels.slice(7, 8), 2)),
-                    invert_b: Boolean(parseInt(channels.slice(6, 7), 2)),
+                    channel_a: useOwnChannelA ? parseInt(channels.slice(0, 4), 2) + 1 : 0,
+                    channel_b: useOwnChannelB ? parseInt(channels.slice(4), 2) + 1 : 0,
+                    invert_a: Boolean(parseInt(properties.slice(7, 8), 2)),
+                    invert_b: Boolean(parseInt(properties.slice(6, 7), 2)),
                     min_a: dataBytes[6],
                     max_a: dataBytes[7],
                     min_b: dataBytes[8],

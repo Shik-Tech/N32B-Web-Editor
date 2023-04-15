@@ -107,8 +107,14 @@ export function generateSysExFromPresetV3(currentPreset) {
             invert_b
         } = knob;
 
-        const channels = parseInt(byteString(channel_a - 1, 4) + byteString(channel_b - 1, 4), 2);
-        const properties = parseInt(join(["0", byteString(mode, 3), +(channel_b < 0), +(channel_a < 0), +invert_b, +invert_a], ""), 2);
+        const channel_a_byte = byteString(channel_a - 1, 4);
+        const channel_b_byte = byteString(channel_b - 1, 4);
+        const channels = parseInt(channel_a_byte + channel_b_byte, 2);
+
+        const knobMode = byteString(mode, 3);
+        const useOwnChannelA = +(channel_a > 0);
+        const useOwnChannelB = +(channel_b > 0);
+        const properties = parseInt(join(["0", knobMode, useOwnChannelB, useOwnChannelA, +invert_b, +invert_a], ""), 2);
 
         const knobMessage = [
             SET_KNOB_MODE,
