@@ -106,42 +106,27 @@ function Editor(props) {
         });
     }
 
-    const formStandardProps = {
-        handleMSBChange,
-        handleInvertValueAChange
-    }
-
-    const formMacroProps = {
+    const formFunctionProps = {
+        handleInvertValueAChange,
+        handleMinAChange,
+        handleMaxAChange,
         handleMSBChange,
         handleLSBChange,
-        handleInvertValueAChange,
         handleInvertValueBChange,
         handleChannelAChange,
         handleChannelBChange,
-        handleMinAChange,
-        handleMaxAChange,
         handleMinBChange,
-        handleMaxBChange
-    };
-
-    const formRPNProps = {
-        handleMSBChange,
-        handleLSBChange,
-        handleInvertValueAChange
-    }
-
-    const formHiResProps = {
-        handleHiResChange,
-        handleInvertValueAChange
+        handleMaxBChange,
+        handleHiResChange
     }
 
     const displayForms = [
         <></>,
-        <ControlChangeForm {...props} {...formStandardProps} />,
-        <ControlChangeMacroForm {...props} {...formMacroProps} />,
-        <ControlChangeRPNForm {...props} {...formRPNProps} />,
-        <ControlChangeRPNForm {...props} {...formRPNProps} />,
-        <ControlChangeHiResForm {...props} {...formHiResProps} />
+        <ControlChangeForm {...props} {...formFunctionProps} />,
+        <ControlChangeMacroForm {...props} {...formFunctionProps} />,
+        <ControlChangeRPNForm {...props} {...formFunctionProps} />,
+        <ControlChangeRPNForm {...props} {...formFunctionProps} />,
+        <ControlChangeHiResForm {...props} {...formFunctionProps} />
     ];
 
     return (
