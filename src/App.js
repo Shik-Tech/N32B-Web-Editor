@@ -10,7 +10,8 @@ import {
   Version,
   SyncDevice,
   SystemMessages,
-  ThruMode
+  ThruMode,
+  OutputMode
 } from './components';
 import logo from './components/images/shik-logo-small.png';
 import './App.css';
@@ -27,6 +28,7 @@ import {
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded';
 import SimCardDownloadRoundedIcon from '@mui/icons-material/SimCardDownloadRounded';
 import { ThruOptions } from './components/ThruMode/ThruOptions';
+import { OutputOptions } from './components/OutputMode/OutputOptions';
 import {
   setDeviceIsConnected,
   setFirmwareVersion,
@@ -40,6 +42,7 @@ import {
   setSelectedKnobIndex,
   updateCurrentDevicePresetIndex,
   updateKnobData,
+  updateMidiOutput,
   updateMidiThru,
   updatePreset
 } from './app/slices/presetReducer';
@@ -48,6 +51,7 @@ import defaultPresets from './presetTemplates/default';
 import sysExPreset from './presetTemplates/default/sysEx.json'
 import {
   SEND_FIRMWARE_VERSION,
+  SET_OUTPUT_MODE,
   SET_THRU_MODE,
   SYNC_KNOBS
 } from './components/UpdateDevice/commands';
@@ -219,6 +223,11 @@ function App() {
           dispatch(updateMidiThru(thruMode));
           break;
 
+        case SET_OUTPUT_MODE:
+          const outputMode = dataBytes[1];
+          dispatch(updateMidiOutput(outputMode));
+          break;
+
         default:
           break;
       }
@@ -299,6 +308,10 @@ function App() {
   }
   const handleFirmwareUpdate = () => {
     window.open("https://shik.tech/firmware-update/");
+  }
+
+  function handleOutputModeChange(outputMode) {
+    dispatch(updateMidiOutput(outputMode.target.value));
   }
 
   function handleThruModeChange(thruMode) {
@@ -429,11 +442,23 @@ function App() {
             >
               {firmwareVersion[0] > 3 &&
                 <>
-                  <ThruMode
-                    thruMode={currentPreset.thruMode}
-                    thruOptions={ThruOptions}
-                    handleThruModeChange={handleThruModeChange}
-                  />
+                  <Stack
+                    direction="row"
+                    divider={<Divider orientation="vertical" flexItem />}
+                    spacing={4}
+                    sx={{ mt: 2 }}
+                  >
+                    <ThruMode
+                      thruMode={currentPreset.thruMode}
+                      thruOptions={ThruOptions}
+                      handleThruModeChange={handleThruModeChange}
+                    />
+                    <OutputMode
+                      outputMode={currentPreset.outputMode}
+                      outputOptions={OutputOptions}
+                      handleOutputModeChange={handleOutputModeChange}
+                    />
+                  </Stack>
                   <Divider />
                 </>
               }

@@ -3,6 +3,7 @@
     "presetID": 0,
     "presetName": "Default Macro",
     "thruMode": 3,
+    "outputMode": 2,
     "knobs": [
         {
             "id": 1,

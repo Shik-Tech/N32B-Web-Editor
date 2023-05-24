@@ -17,6 +17,9 @@ export const presetSlice = createSlice({
         updateMidiThru: (state, action) => {
             state.currentPreset.thruMode = action.payload;
         },
+        updateMidiOutput: (state, action) => {
+            state.currentPreset.outputMode = action.payload;
+        },
         setSelectedKnobIndex: (state, action) => {
             state.selectedKnobIndex = action.payload;;
         },
@@ -50,6 +53,7 @@ export const {
     setPreset,
     updatePreset,
     updateMidiThru,
+    updateMidiOutput,
     setSelectedKnobIndex,
     updateCurrentDevicePresetIndex,
     updateKnobData,

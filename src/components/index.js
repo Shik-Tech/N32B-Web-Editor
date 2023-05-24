@@ -10,6 +10,7 @@ import PresetName from './PresetName';
 import Version from './Version';
 import SystemMessages from './SystemMessages/SystemMessages';
 import ThruMode from './ThruMode/ThruMode';
+import OutputMode from './OutputMode/OutputMode';
 
 export {
     N32B,
@@ -23,5 +24,6 @@ export {
     PresetName,
     Version,
     SystemMessages,
-    ThruMode
+    ThruMode,
+    OutputMode
 };
