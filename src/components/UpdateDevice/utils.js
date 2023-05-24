@@ -1,5 +1,5 @@
 import { forEach, join, map } from 'lodash';
-import { SAVE_PRESET, SET_KNOB_MODE, START_SYSEX_MESSAGE, SET_THRU_MODE } from './commands';
+import { SAVE_PRESET, SET_KNOB_MODE, START_SYSEX_MESSAGE, SET_THRU_MODE, SET_OUTPUT_MODE } from './commands';
 import { byteString } from '../../utils';
 
 export function generateSysExFromPreset(currentPreset) {
@@ -88,7 +88,8 @@ export function generateSysExFromPresetV3(currentPreset) {
     const messages = [];
     const {
         knobs,
-        thruMode
+        thruMode,
+        outputMode
     } = currentPreset;
 
     forEach(knobs, (knob) => {
@@ -137,7 +138,13 @@ export function generateSysExFromPresetV3(currentPreset) {
         thruMode
     ];
 
+    const outputModeMessage = [
+        SET_OUTPUT_MODE,
+        outputMode
+    ];
+
     messages.push(thruModeMessage);
+    messages.push(outputModeMessage);
     messages.push([SAVE_PRESET, currentPreset.presetID]);
 
     return messages;
@@ -145,5 +152,6 @@ export function generateSysExFromPresetV3(currentPreset) {
 
 // Accepts target obejct of input onChange event
 export function validateValueRange({ value, min, max }) {
+    
     return Math.max(Number(min), Math.min(Number(max), Number(value)));
 }
