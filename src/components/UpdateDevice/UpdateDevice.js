@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { forEach, map } from 'lodash';
 import {
     Button,
@@ -8,9 +8,6 @@ import {
     MenuItem,
     Stack,
     Typography,
-    Modal,
-    Box,
-    CircularProgress,
     Dialog,
     DialogTitle,
     Grid,
@@ -24,68 +21,7 @@ import {
     generateSysExFromPresetV2,
     generateSysExFromPresetV3
 } from './utils';
-
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-};
-
-function CircularProgressWithLabel(props) {
-    return (
-        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress variant="determinate" {...props} />
-            <Box
-                sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Typography
-                    variant="caption"
-                    component="div"
-                    color="text.secondary"
-                >{`${Math.round(props.value)}%`}</Typography>
-            </Box>
-        </Box>
-    );
-}
-
-
-function UpdateProgress({ updating, progress }) {
-    return (
-        <Fragment>
-            <Modal
-                // hideBackdrop
-                open={updating}
-                aria-labelledby="child-modal-title"
-                aria-describedby="child-modal-description"
-            >
-                <Box sx={{ ...style, width: 200 }}>
-                    <Stack
-                        direction="row"
-                        spacing={3}
-                    >
-                        <Typography variant='h6'>Updating</Typography>
-                        <CircularProgressWithLabel value={progress} />
-                    </Stack>
-                </Box>
-            </Modal>
-        </Fragment>
-    );
-}
+import { UpdateProgress } from '..';
 
 function UpdateDevice(props) {
     const {
@@ -230,6 +166,8 @@ function UpdateDevice(props) {
                 <UpdateProgress
                     updating={updating}
                     progress={progress}
+                    title="Updating"
+                    variant="determinate"
                 />
             </Dialog>
         </>

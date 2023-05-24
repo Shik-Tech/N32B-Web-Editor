@@ -9,7 +9,8 @@ export const deviceSlice = createSlice({
         midiOutput: null,
         midiDeviceName: null,
         systemMessage: null,
-        openMessageDialog: false
+        openMessageDialog: false,
+        isSyncing: false
     },
     reducers: {
         setMidiInput: (state, action) => {
@@ -36,6 +37,9 @@ export const deviceSlice = createSlice({
         },
         openMessageDialog: (state, action) => {
             state.openMessageDialog = action.payload;
+        },
+        setIsSyncing: (state, action) => {
+            state.isSyncing = action.payload
         }
     }
 })
@@ -47,7 +51,8 @@ export const {
     setMidiDeviceName,
     setFirmwareVersion,
     setSystemMessage,
-    openMessageDialog
+    openMessageDialog,
+    setIsSyncing
 } = deviceSlice.actions;
 
 export default deviceSlice.reducer

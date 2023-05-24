@@ -11,6 +11,7 @@ import Version from './Version';
 import SystemMessages from './SystemMessages/SystemMessages';
 import ThruMode from './ThruMode/ThruMode';
 import OutputMode from './OutputMode/OutputMode';
+import UpdateProgress from './UpdateProgress/UpdateProgress';
 
 export {
     N32B,
@@ -25,5 +26,6 @@ export {
     Version,
     SystemMessages,
     ThruMode,
-    OutputMode
+    OutputMode,
+    UpdateProgress
 };

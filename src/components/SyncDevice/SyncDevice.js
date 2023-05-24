@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { map } from 'lodash';
 import {
     Button,
@@ -15,16 +15,19 @@ import {
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SyncRoundedIcon from '@mui/icons-material/SyncRounded';
+import UpdateProgress from '../UpdateProgress/UpdateProgress';
 
 function SyncDEvice(props) {
     const {
         currentDevicePresetIndex,
         handlePresetChange,
         handleLoadFromDevice,
-        firmwareVersion
+        firmwareVersion,
+        isSyncing
     } = props;
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -109,6 +112,10 @@ function SyncDEvice(props) {
                         </Button>
                     </Stack>
                 </Stack>
+                <UpdateProgress
+                    updating={isSyncing}
+                    title="Syncing"
+                />
             </Dialog>
         </>
     );

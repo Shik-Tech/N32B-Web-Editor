@@ -32,6 +32,7 @@ import { OutputOptions } from './components/OutputMode/OutputOptions';
 import {
   setDeviceIsConnected,
   setFirmwareVersion,
+  setIsSyncing,
   setMidiDeviceName,
   setMidiInput,
   setMidiOutput,
@@ -50,6 +51,7 @@ import {
 import defaultPresets from './presetTemplates/default';
 import sysExPreset from './presetTemplates/default/sysEx.json'
 import {
+  END_OF_TRANSMISSION,
   SEND_FIRMWARE_VERSION,
   SET_OUTPUT_MODE,
   SET_THRU_MODE,
@@ -66,7 +68,8 @@ function App() {
     midiOutput,
     midiDeviceName,
     systemMessage,
-    openMessageDialog
+    openMessageDialog,
+    isSyncing
   } = useSelector(state => state.device);
 
   const {
@@ -228,6 +231,10 @@ function App() {
           dispatch(updateMidiOutput(outputMode));
           break;
 
+        case END_OF_TRANSMISSION:
+          dispatch(setIsSyncing(false));
+          break;
+
         default:
           break;
       }
@@ -301,6 +308,7 @@ function App() {
     ));
   }
   const handleLoadFromDevice = () => {
+    dispatch(setIsSyncing(true));
     midiOutput.sendSysex(32, [SYNC_KNOBS]);
     if (!sysExListener.current) {
       sysExListener.current = midiInput.addListener('sysex', handleSysEx);
@@ -404,6 +412,7 @@ function App() {
                   />
 
                   <SyncDevice
+                    isSyncing={isSyncing}
                     firmwareVersion={firmwareVersion}
                     currentPreset={currentPreset}
                     currentDevicePresetIndex={currentPreset.presetID}
