@@ -152,6 +152,5 @@ export function generateSysExFromPresetV3(currentPreset) {
 
 // Accepts target obejct of input onChange event
 export function validateValueRange({ value, min, max }) {
-    
     return Math.max(Number(min), Math.min(Number(max), Number(value)));
 }

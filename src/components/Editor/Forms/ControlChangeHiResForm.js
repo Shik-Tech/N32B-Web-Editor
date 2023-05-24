@@ -9,9 +9,7 @@ import React from "react";
 function ControlChangeHiResForm({
     currentKnob,
     handleHiResChange,
-    handleInvertValueAChange,
-    handleMinAChange,
-    handleMaxAChange
+    handleChange
 }) {
     const {
         msb,
@@ -35,6 +33,7 @@ function ControlChangeHiResForm({
                     size="small"
                     label="MSB"
                     type="number"
+                    name="msb"
 
                     InputProps={{ inputProps: { min: 0, max: 31 } }}
                     value={msb}
@@ -45,6 +44,8 @@ function ControlChangeHiResForm({
                     size="small"
                     label="LSB"
                     type="number"
+                    name="lsb"
+
                     disabled={true}
                     InputProps={{ inputProps: { min: 0, max: 31 } }}
                     value={lsb}
@@ -60,25 +61,30 @@ function ControlChangeHiResForm({
                     size="small"
                     label="Min"
                     type="number"
+                    name="min_a"
+
                     InputProps={{ inputProps: { min: 0, max: max_a } }}
                     value={min_a}
-                    onChange={handleMinAChange}
+                    onChange={handleChange}
                 />
                 <TextField
                     fullWidth
                     size="small"
                     label="Max"
                     type="number"
+                    name="max_a"
+
                     InputProps={{ inputProps: { min: min_a, max: 127 } }}
                     value={max_a}
-                    onChange={handleMaxAChange}
+                    onChange={handleChange}
                 />
 
                 <FormControlLabel
                     control={
                         <Checkbox
                             checked={invert_a}
-                            onChange={handleInvertValueAChange}
+                            id="invert_a"
+                            onChange={handleChange}
                         />
                     }
                     label="Invert" />

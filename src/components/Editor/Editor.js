@@ -22,66 +22,24 @@ function Editor(props) {
 
     const dispatch = useDispatch();
 
-    function handleChannelChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            channel: parseInt(event.target.value)
-        });
-    }
-
     function handleModeSelect(e) {
         dispatch(updateKnobMode({ mode: parseInt(e.target.value), currentKnob }));
     }
 
-    function handleChannelAChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            channel_a: parseInt(event.target.value)
-        });
-    }
+    function handleChange(event) {
+        if (event.target.type === "checkbox") {
+            console.log(event.target.checked);
+            handleKnobDataChange(
+                currentKnob, {
+                [event.target.id]: event.target.checked
+            });
+        } else {
+            handleKnobDataChange(
+                currentKnob, {
+                [event.target.name]: parseInt(event.target.value)
+            });
+        }
 
-    function handleChannelBChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            channel_b: parseInt(event.target.value)
-        });
-    }
-    function handleMinAChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            min_a: parseInt(event.target.value)
-        });
-    }
-    function handleMaxAChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            max_a: parseInt(event.target.value)
-        });
-    }
-    function handleMinBChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            min_b: parseInt(event.target.value)
-        });
-    }
-    function handleMaxBChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            max_b: parseInt(event.target.value)
-        });
-    }
-
-    function handleMSBChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            msb: validateValueRange(event.target)
-        });
-    }
-    function handleLSBChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            lsb: validateValueRange(event.target)
-        });
     }
 
     function handleHiResChange(event) {
@@ -92,41 +50,13 @@ function Editor(props) {
         });
     }
 
-    function handleInvertValueAChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            invert_a: event.target.checked
-        });
-    }
-
-    function handleInvertValueBChange(event) {
-        handleKnobDataChange(
-            currentKnob, {
-            invert_b: event.target.checked
-        });
-    }
-
-    const formFunctionProps = {
-        handleInvertValueAChange,
-        handleMinAChange,
-        handleMaxAChange,
-        handleMSBChange,
-        handleLSBChange,
-        handleInvertValueBChange,
-        handleChannelAChange,
-        handleChannelBChange,
-        handleMinBChange,
-        handleMaxBChange,
-        handleHiResChange
-    }
-
     const displayForms = [
         <></>,
-        <ControlChangeForm {...props} {...formFunctionProps} />,
-        <ControlChangeMacroForm {...props} {...formFunctionProps} />,
-        <ControlChangeRPNForm {...props} {...formFunctionProps} />,
-        <ControlChangeRPNForm {...props} {...formFunctionProps} />,
-        <ControlChangeHiResForm {...props} {...formFunctionProps} />
+        <ControlChangeForm {...props} handleChange={handleChange} />,
+        <ControlChangeMacroForm {...props} handleChange={handleChange} />,
+        <ControlChangeRPNForm {...props} handleChange={handleChange} />,
+        <ControlChangeRPNForm {...props} handleChange={handleChange} />,
+        <ControlChangeHiResForm {...props} handleChange={handleChange} handleHiResChange={handleHiResChange} />
     ];
 
     return (
@@ -154,8 +84,9 @@ function Editor(props) {
                     <InputLabel id="channel-select-label">Channel</InputLabel>
                     <ChannelSelect
                         channel={currentKnob.channel}
-                        handleChannelChange={handleChannelChange}
-                        label="Channel" />
+                        handleChange={handleChange}
+                        label="Channel"
+                        name="channel" />
                 </FormControl>
             }
             {
@@ -166,8 +97,9 @@ function Editor(props) {
                     <InputLabel id="channel-select-label">Channel</InputLabel>
                     <ChannelSelect
                         channel={currentKnob.channel_a}
-                        handleChannelChange={handleChannelAChange}
-                        label="Channel" />
+                        handleChange={handleChange}
+                        label="Channel"
+                        name="channel_a" />
                 </FormControl>
             }
             {displayForms[currentKnob.mode]}

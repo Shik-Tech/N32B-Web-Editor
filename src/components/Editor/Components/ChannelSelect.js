@@ -2,7 +2,7 @@ import { MenuItem, Select } from "@mui/material";
 import { map } from "lodash";
 import React from "react";
 
-function ChannelSelect({ channel, handleChannelChange, label }) {
+function ChannelSelect({ channel, handleChange, label, name }) {
     const options = [];
     for (let i = 0; i < 16; i++) {
         options[i] = i + 1;
@@ -12,9 +12,10 @@ function ChannelSelect({ channel, handleChannelChange, label }) {
             labelId="channel-select-label"
             id="channel-select"
             label={label}
+            name={name}
 
             value={channel}
-            onChange={handleChannelChange}
+            onChange={handleChange}
         >
             <MenuItem value={0} key={0}>Use Global Channel</MenuItem>
             {map(options, value =>

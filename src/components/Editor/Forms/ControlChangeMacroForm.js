@@ -14,16 +14,7 @@ import ChannelSelect from "../Components/ChannelSelect";
 function ControlChangeMacroForm({
     currentKnob,
     firmwareVersion,
-    handleMSBChange,
-    handleLSBChange,
-    handleInvertValueAChange,
-    handleInvertValueBChange,
-    handleChannelAChange,
-    handleChannelBChange,
-    handleMinAChange,
-    handleMaxAChange,
-    handleMinBChange,
-    handleMaxBChange
+    handleChange
 }) {
     const {
         msb,
@@ -53,16 +44,18 @@ function ControlChangeMacroForm({
                             size="small"
                             label="Control Change A"
                             type="number"
+                            name="msb"
 
                             InputProps={{ inputProps: { min: 0, max: 127 } }}
                             value={msb}
-                            onChange={handleMSBChange}
+                            onChange={handleChange}
                         />
                         <FormControlLabel
                             control={
                                 <Checkbox
                                     checked={invert_a}
-                                    onChange={handleInvertValueAChange}
+                                    id="invert_a"
+                                    onChange={handleChange}
                                 />
                             }
                             label="Invert" />
@@ -77,23 +70,25 @@ function ControlChangeMacroForm({
                             size="small"
                             label="Control Change B"
                             type="number"
+                            name="lsb"
 
                             InputProps={{ inputProps: { min: 0, max: 127 } }}
                             value={lsb}
-                            onChange={handleLSBChange}
+                            onChange={handleChange}
                         />
                         <FormControlLabel
                             control={
                                 <Checkbox
                                     checked={invert_b}
-                                    onChange={handleInvertValueBChange}
+                                    id="invert_b"
+                                    onChange={handleChange}
                                 />
                             }
                             label="Invert" />
                     </Stack>
                 </Stack>
             }
-            
+
             {firmwareVersion[0] > 3 &&
                 <Stack
                     direction="row"
@@ -113,18 +108,20 @@ function ControlChangeMacroForm({
                                 size="small"
                                 label="Control Change A"
                                 type="number"
+                                name="msb"
 
                                 InputProps={{ inputProps: { min: 0, max: 127 } }}
                                 value={msb}
-                                onChange={handleMSBChange}
+                                onChange={handleChange}
                             />
                         </FormControl>
                         <FormControl fullWidth size="small">
                             <InputLabel id="channel-select-label">Channel A</InputLabel>
                             <ChannelSelect
                                 channel={channel_a}
-                                handleChannelChange={handleChannelAChange}
-                                label="Channel A" />
+                                handleChange={handleChange}
+                                label="Channel A"
+                                name="channel_a" />
                         </FormControl>
 
                         <Stack
@@ -136,18 +133,22 @@ function ControlChangeMacroForm({
                                 size="small"
                                 label="Min"
                                 type="number"
+                                name="min_a"
+
                                 InputProps={{ inputProps: { min: 0, max: max_a } }}
                                 value={min_a}
-                                onChange={handleMinAChange}
+                                onChange={handleChange}
                             />
                             <TextField
                                 fullWidth
                                 size="small"
                                 label="Max"
                                 type="number"
+                                name="max_a"
+
                                 InputProps={{ inputProps: { min: min_a, max: 127 } }}
                                 value={max_a}
-                                onChange={handleMaxAChange}
+                                onChange={handleChange}
                             />
                         </Stack>
 
@@ -155,7 +156,8 @@ function ControlChangeMacroForm({
                             control={
                                 <Checkbox
                                     checked={invert_a}
-                                    onChange={handleInvertValueAChange}
+                                    id="invert_a"
+                                    onChange={handleChange}
                                 />
                             }
                             label="Invert Value A" />
@@ -173,10 +175,11 @@ function ControlChangeMacroForm({
                             size="small"
                             label="Control Change B"
                             type="number"
+                            name="lsb"
 
                             InputProps={{ inputProps: { min: 0, max: 127 } }}
                             value={lsb}
-                            onChange={handleLSBChange}
+                            onChange={handleChange}
                         />
 
 
@@ -184,8 +187,9 @@ function ControlChangeMacroForm({
                             <InputLabel id="channel-select-label">Channel B</InputLabel>
                             <ChannelSelect
                                 channel={channel_b}
-                                handleChannelChange={handleChannelBChange}
-                                label="Channel B" />
+                                handleChange={handleChange}
+                                label="Channel B"
+                                name="channel_b" />
                         </FormControl>
 
                         <Stack
@@ -197,18 +201,22 @@ function ControlChangeMacroForm({
                                 size="small"
                                 label="Min"
                                 type="number"
+                                name="min_b"
+
                                 InputProps={{ inputProps: { min: 0, max: max_b } }}
                                 value={min_b}
-                                onChange={handleMinBChange}
+                                onChange={handleChange}
                             />
                             <TextField
                                 fullWidth
                                 size="small"
                                 label="Max"
                                 type="number"
+                                name="max_b"
+
                                 InputProps={{ inputProps: { min: min_b, max: 127 } }}
                                 value={max_b}
-                                onChange={handleMaxBChange}
+                                onChange={handleChange}
                             />
                         </Stack>
 
@@ -216,7 +224,8 @@ function ControlChangeMacroForm({
                             control={
                                 <Checkbox
                                     checked={invert_b}
-                                    onChange={handleInvertValueBChange}
+                                    id="invert_b"
+                                    onChange={handleChange}
                                 />
                             }
                             label="Invert Value B" />

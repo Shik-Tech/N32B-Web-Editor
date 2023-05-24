@@ -8,10 +8,7 @@ import React from "react";
 
 function ControlChangeForm({
     currentKnob,
-    handleMSBChange,
-    handleInvertValueAChange,
-    handleMinAChange,
-    handleMaxAChange
+    handleChange
 }) {
     const {
         msb,
@@ -34,10 +31,11 @@ function ControlChangeForm({
                     size="small"
                     label="Control Number"
                     type="number"
+                    name="msb"
 
                     InputProps={{ inputProps: { min: 0, max: 127 } }}
                     value={msb}
-                    onChange={handleMSBChange}
+                    onChange={handleChange}
                 />
             </Stack>
 
@@ -50,25 +48,28 @@ function ControlChangeForm({
                     size="small"
                     label="Min"
                     type="number"
+                    name="min_a"
                     InputProps={{ inputProps: { min: 0, max: max_a } }}
                     value={min_a}
-                    onChange={handleMinAChange}
+                    onChange={handleChange}
                 />
                 <TextField
                     fullWidth
                     size="small"
                     label="Max"
                     type="number"
+                    name="max_a"
                     InputProps={{ inputProps: { min: min_a, max: 127 } }}
                     value={max_a}
-                    onChange={handleMaxAChange}
+                    onChange={handleChange}
                 />
 
                 <FormControlLabel
                     control={
                         <Checkbox
                             checked={invert_a}
-                            onChange={handleInvertValueAChange}
+                            id="invert_a"
+                            onChange={handleChange}
                         />
                     }
                     label="Invert" />
