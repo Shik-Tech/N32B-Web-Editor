@@ -108,10 +108,8 @@ export function generateSysExFromPresetV3(currentPreset) {
             invert_b
         } = knob;
 
-        const channel_a_byte = byteString(channel_a - 1, 4);
-        const channel_b_byte = byteString(channel_b - 1, 4);
-        const channels = parseInt(channel_a_byte + channel_b_byte, 2);
-
+        const channel_a_byte = parseInt(byteString(channel_a - 1, 4), 2);
+        const channel_b_byte = parseInt(byteString(channel_b - 1, 4), 2);
         const knobMode = byteString(mode, 3);
         const useOwnChannelA = +(channel_a > 0);
         const useOwnChannelB = +(channel_b > 0);
@@ -122,7 +120,8 @@ export function generateSysExFromPresetV3(currentPreset) {
             hardwareId,
             msb,
             lsb,
-            channels,
+            channel_a_byte,
+            channel_b_byte,
             properties,
             min_a,
             max_a,

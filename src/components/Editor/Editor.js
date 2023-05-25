@@ -28,10 +28,14 @@ function Editor(props) {
 
     function handleChange(event) {
         if (event.target.type === "checkbox") {
-            console.log(event.target.checked);
             handleKnobDataChange(
                 currentKnob, {
                 [event.target.id]: event.target.checked
+            });
+        } else if(event.target.type === "number") {
+            handleKnobDataChange(
+                currentKnob, {
+                [event.target.name]: validateValueRange(event.target)
             });
         } else {
             handleKnobDataChange(
@@ -39,7 +43,6 @@ function Editor(props) {
                 [event.target.name]: parseInt(event.target.value)
             });
         }
-
     }
 
     function handleHiResChange(event) {

@@ -192,8 +192,9 @@ function App() {
                   break;
 
                 case firmwareVersion[0] > 3:
-                  const properties = byteString(dataBytes[5]);
-                  const channels = byteString(dataBytes[4]);
+                  const properties = byteString(dataBytes[6]);
+                  const channel_a = parseInt(byteString(dataBytes[4], 4), 2);
+                  const channel_b = parseInt(byteString(dataBytes[5], 4), 2);
                   const useOwnChannelA = Boolean(parseInt(properties.slice(5, 6), 2));
                   const useOwnChannelB = Boolean(parseInt(properties.slice(4, 5), 2));
                   currentKnob = {
@@ -201,14 +202,14 @@ function App() {
                     mode: parseInt(properties.slice(1, 4), 2),
                     msb: dataBytes[2],
                     lsb: dataBytes[3],
-                    channel_a: useOwnChannelA ? parseInt(channels.slice(0, 4), 2) + 1 : 0,
-                    channel_b: useOwnChannelB ? parseInt(channels.slice(4), 2) + 1 : 0,
+                    channel_a: useOwnChannelA ? channel_a + 1 : 0,
+                    channel_b: useOwnChannelB ? channel_b + 1 : 0,
                     invert_a: Boolean(parseInt(properties.slice(7, 8), 2)),
                     invert_b: Boolean(parseInt(properties.slice(6, 7), 2)),
-                    min_a: dataBytes[6],
-                    max_a: dataBytes[7],
-                    min_b: dataBytes[8],
-                    max_b: dataBytes[9],
+                    min_a: dataBytes[7],
+                    max_a: dataBytes[8],
+                    min_b: dataBytes[9],
+                    max_b: dataBytes[10],
                   };
                   break;
 
