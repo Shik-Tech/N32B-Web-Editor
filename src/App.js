@@ -1,20 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import { WebMidi } from "webmidi";
-import {
-  N32B,
-  Editor,
-  SysExEditor,
-  UpdateDevice,
-  ConnectDevice,
-  Version,
-  SyncDevice,
-  SystemMessages,
-  ThruMode,
-  OutputMode
-} from './components';
-import logo from './components/images/shik-logo-small.png';
-import './App.css';
+import { findIndex } from 'lodash';
 import { Container } from '@mui/system';
 import {
   AppBar,
@@ -27,8 +14,30 @@ import {
 } from '@mui/material';
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded';
 import SimCardDownloadRoundedIcon from '@mui/icons-material/SimCardDownloadRounded';
-import { ThruOptions } from './components/ThruMode/ThruOptions';
-import { OutputOptions } from './components/OutputMode/OutputOptions';
+
+import './App.css';
+import logo from './components/images/shik-logo-small.png';
+import {
+  N32B,
+  Editor,
+  SysExEditor,
+  UpdateDevice,
+  ConnectDevice,
+  Version,
+  SyncDevice,
+  SystemMessages,
+  ThruMode,
+  ThruOptions,
+  OutputMode,
+  OutputOptions
+} from './components';
+import {
+  END_OF_TRANSMISSION,
+  SEND_FIRMWARE_VERSION,
+  SET_OUTPUT_MODE,
+  SET_THRU_MODE,
+  SYNC_KNOBS
+} from './components/UpdateDevice/commands';
 import {
   setDeviceIsConnected,
   setFirmwareVersion,
@@ -47,17 +56,8 @@ import {
   updateMidiThru,
   updatePreset
 } from './app/slices/presetReducer';
-
 import defaultPresets from './presetTemplates/default';
 import sysExPreset from './presetTemplates/default/sysEx.json'
-import {
-  END_OF_TRANSMISSION,
-  SEND_FIRMWARE_VERSION,
-  SET_OUTPUT_MODE,
-  SET_THRU_MODE,
-  SYNC_KNOBS
-} from './components/UpdateDevice/commands';
-import { findIndex } from 'lodash';
 import { byteString } from './utils';
 
 function App() {
@@ -111,9 +111,9 @@ function App() {
   useEffect(() => {
     if (!currentPreset && firmwareVersion) {
       let preset;
-      if (firmwareVersion > 29) {
+      if (firmwareVersion[0] > 29) {
         preset = sysExPreset;
-      } else if (firmwareVersion < 4) {
+      } else if (firmwareVersion[0] < 4) {
         preset = defaultPresets.defaultPreset_v3;
       } else {
         preset = defaultPresets.defaultPreset_v4;

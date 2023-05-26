@@ -8,4 +8,4 @@ const OutputOptions = [
     { name: "Output to TRS & USB", value: OUTPUT_BOTH },
 ];
 
-export { OutputOptions };
+export default OutputOptions;

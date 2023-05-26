@@ -1,21 +1,20 @@
-import React from "react";
 import {
     Checkbox,
     FormControlLabel,
     Stack,
     TextField
 } from "@mui/material";
+import React from "react";
 
-function ControlChangeRPNForm({
+function Version3Form({
     currentKnob,
+    handleHiResChange,
     handleChange
 }) {
     const {
         msb,
         lsb,
         invert_a,
-        min_a,
-        max_a
     } = currentKnob;
 
     return (
@@ -34,11 +33,10 @@ function ControlChangeRPNForm({
                     type="number"
                     name="msb"
 
-                    InputProps={{ inputProps: { min: 0, max: 127 } }}
+                    InputProps={{ inputProps: { min: 0, max: 31 } }}
                     value={msb}
-                    onChange={handleChange}
+                    onChange={handleHiResChange}
                 />
-
                 <TextField
                     fullWidth
                     size="small"
@@ -46,37 +44,9 @@ function ControlChangeRPNForm({
                     type="number"
                     name="lsb"
 
-                    InputProps={{ inputProps: { min: 0, max: 127 } }}
+                    disabled={true}
+                    InputProps={{ inputProps: { min: 0, max: 31 } }}
                     value={lsb}
-                    onChange={handleChange}
-                />
-            </Stack>
-
-            <Stack
-                direction="row"
-                spacing={2}
-            >
-                <TextField
-                    fullWidth
-                    size="small"
-                    label="Min"
-                    type="number"
-                    name="min_a"
-
-                    InputProps={{ inputProps: { min: 0, max: max_a } }}
-                    value={min_a}
-                    onChange={handleChange}
-                />
-                <TextField
-                    fullWidth
-                    size="small"
-                    label="Max"
-                    type="number"
-                    name="max_a"
-
-                    InputProps={{ inputProps: { min: min_a, max: 127 } }}
-                    value={max_a}
-                    onChange={handleChange}
                 />
 
                 <FormControlLabel
@@ -89,8 +59,8 @@ function ControlChangeRPNForm({
                     }
                     label="Invert" />
             </Stack>
-        </Stack >
+        </Stack>
     )
 }
 
-export default ControlChangeRPNForm;
+export default Version3Form;

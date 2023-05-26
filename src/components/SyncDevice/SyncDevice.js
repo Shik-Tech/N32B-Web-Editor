@@ -112,10 +112,14 @@ function SyncDEvice(props) {
                         </Button>
                     </Stack>
                 </Stack>
-                <UpdateProgress
-                    updating={isSyncing}
-                    title="Syncing"
-                />
+                {
+                    firmwareVersion[0] > 3 &&
+                    firmwareVersion[0] < 30 &&
+                    <UpdateProgress
+                        updating={isSyncing}
+                        title="Syncing"
+                    />
+                }
             </Dialog>
         </>
     );

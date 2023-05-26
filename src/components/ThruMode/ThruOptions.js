@@ -15,4 +15,4 @@ const ThruOptions = [
     { name: "Thru Both USB & TRS", value: THRU_BOTH_DIRECTIONS },
 ];
 
-export { ThruOptions };
+export default ThruOptions;

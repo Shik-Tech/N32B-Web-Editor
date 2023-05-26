@@ -32,7 +32,7 @@ function Editor(props) {
                 currentKnob, {
                 [event.target.id]: event.target.checked
             });
-        } else if(event.target.type === "number") {
+        } else if (event.target.type === "number") {
             handleKnobDataChange(
                 currentKnob, {
                 [event.target.name]: validateValueRange(event.target)
@@ -61,7 +61,6 @@ function Editor(props) {
         <ControlChangeRPNForm {...props} handleChange={handleChange} />,
         <ControlChangeHiResForm {...props} handleChange={handleChange} handleHiResChange={handleHiResChange} />
     ];
-
     return (
         <Stack
             spacing={2}

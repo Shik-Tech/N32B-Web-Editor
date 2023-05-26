@@ -10,7 +10,9 @@ import PresetName from './PresetName';
 import Version from './Version';
 import SystemMessages from './SystemMessages/SystemMessages';
 import ThruMode from './ThruMode/ThruMode';
+import ThruOptions from './ThruMode/ThruOptions';
 import OutputMode from './OutputMode/OutputMode';
+import OutputOptions from './OutputMode/OutputOptions';
 import UpdateProgress from './UpdateProgress/UpdateProgress';
 
 export {
@@ -26,6 +28,8 @@ export {
     Version,
     SystemMessages,
     ThruMode,
+    ThruOptions,
     OutputMode,
+    OutputOptions,
     UpdateProgress
 };

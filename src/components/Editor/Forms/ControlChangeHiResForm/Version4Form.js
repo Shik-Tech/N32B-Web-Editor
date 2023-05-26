@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import React from "react";
 
-function ControlChangeHiResForm({
+function Version4Form({
     currentKnob,
     handleHiResChange,
     handleChange
@@ -93,4 +93,4 @@ function ControlChangeHiResForm({
     )
 }
 
-export default ControlChangeHiResForm;
+export default Version4Form;

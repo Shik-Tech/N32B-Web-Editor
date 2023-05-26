@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import React from "react";
 
-function ControlChangeForm({
+function Version4Form({
     currentKnob,
     handleChange
 }) {
@@ -63,7 +63,6 @@ function ControlChangeForm({
                     value={max_a}
                     onChange={handleChange}
                 />
-
                 <FormControlLabel
                     control={
                         <Checkbox
@@ -78,4 +77,4 @@ function ControlChangeForm({
     )
 }
 
-export default ControlChangeForm;
+export default Version4Form;
