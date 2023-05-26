@@ -2,7 +2,8 @@
     "presetVersion": 3,
     "presetID": 0,
     "presetName": "Kawai - K3",
-    "thruMode": 0,
+    "thruMode": 1,
+    "outputMode": 2,
     "knobs": [
         {
             "id": 1,

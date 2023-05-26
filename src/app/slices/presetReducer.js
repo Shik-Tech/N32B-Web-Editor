@@ -21,7 +21,7 @@ export const presetSlice = createSlice({
             state.currentPreset.outputMode = action.payload;
         },
         setSelectedKnobIndex: (state, action) => {
-            state.selectedKnobIndex = action.payload;;
+            state.selectedKnobIndex = action.payload;
         },
         updateCurrentDevicePresetIndex: (state, action) => {
             state.currentPreset.presetID = action.payload;
@@ -31,7 +31,6 @@ export const presetSlice = createSlice({
                 knobIndex,
                 currentKnob
             } = action.payload;
-
             state.currentPreset.knobs[knobIndex ? knobIndex : state.selectedKnobIndex] = currentKnob;
         },
         updateKnobMode: (state, action) => {

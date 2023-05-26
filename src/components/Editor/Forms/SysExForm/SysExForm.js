@@ -21,7 +21,7 @@ import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRou
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SwapHorizRoundedIcon from '@mui/icons-material/SwapHorizRounded';
 import PushPinRoundedIcon from '@mui/icons-material/PushPinRounded';
-import { validateValueRange } from "../../UpdateDevice/utils";
+import { validateValueRange } from "../../../UpdateDevice/utils";
 
 const ListItem = styled('li')(({ theme }) => ({
     margin: theme.spacing(0.3),
@@ -58,20 +58,17 @@ function SysExForm({
     const [fullSysExMessage, setFullSysExMessage] = useState([]);
     const MSBLSB_PLACEHOLDER = "MSBLSB_PLACEHOLDER";
 
-    function handleSysExChange(currentKnob, sysExMessage) {
+    function handleSysExChange(currentKnob, sysExMessage, valuesIndex) {
         if (sysExMessage.length > 10) return; // Limit sysEx data
-        handleKnobDataChange(currentKnob, { sysExMessage });
+        if (!valuesIndex) {
+            valuesIndex = currentKnob.valuesIndex;
+        }
+        handleKnobDataChange(currentKnob, { sysExMessage, valuesIndex });
     }
     function handleSysExMSBLSBSwitch() {
         handleKnobDataChange(
             currentKnob, {
-            MSBFirst: currentKnob.MSBFirst
-        });
-    }
-    function handleSysExValuesIndexChange(valuesIndex) {
-        handleKnobDataChange(
-            currentKnob, {
-            valuesIndex
+            MSBFirst: !currentKnob.MSBFirst
         });
     }
     function handleIsSignedChange(event) {
@@ -121,8 +118,7 @@ function SysExForm({
         newSysExMessage.splice(hoverIndex, 0, removed);
         const msbLsbIndex = newSysExMessage.indexOf(MSBLSB_PLACEHOLDER);
         newSysExMessage.splice(msbLsbIndex, 1);
-        handleSysExValuesIndexChange(msbLsbIndex);
-        handleSysExChange(currentKnob, newSysExMessage);
+        handleSysExChange(currentKnob, newSysExMessage, msbLsbIndex);
     };
 
     const handleDelete = index => () => {
@@ -130,8 +126,7 @@ function SysExForm({
         newSysExMessage.splice(index, 1);
         const msbLsbIndex = newSysExMessage.indexOf(MSBLSB_PLACEHOLDER);
         newSysExMessage.splice(msbLsbIndex, 1);
-        handleSysExValuesIndexChange(msbLsbIndex);
-        handleSysExChange(currentKnob, newSysExMessage);
+        handleSysExChange(currentKnob, newSysExMessage, msbLsbIndex);
     };
 
     function handleByteChange(event) {
@@ -156,8 +151,7 @@ function SysExForm({
         }
         const msbLsbIndex = newSysExMessage.indexOf(MSBLSB_PLACEHOLDER);
         newSysExMessage.splice(msbLsbIndex, 1);
-        handleSysExValuesIndexChange(msbLsbIndex);
-        handleSysExChange(currentKnob, newSysExMessage);
+        handleSysExChange(currentKnob, newSysExMessage, msbLsbIndex);
         setCurrentEditValue();
         setEditChipIndex(-1);
     }

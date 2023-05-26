@@ -26,30 +26,30 @@ function Editor(props) {
         dispatch(updateKnobMode({ mode: parseInt(e.target.value), currentKnob }));
     }
 
-    function handleChange(event) {
-        if (event.target.type === "checkbox") {
+    function handleChange(e) {
+        if (e.target.type === "checkbox") {
             handleKnobDataChange(
                 currentKnob, {
-                [event.target.id]: event.target.checked
+                [e.target.id]: e.target.checked
             });
-        } else if (event.target.type === "number") {
+        } else if (e.target.type === "number") {
             handleKnobDataChange(
                 currentKnob, {
-                [event.target.name]: validateValueRange(event.target)
+                [e.target.name]: validateValueRange(e.target)
             });
         } else {
             handleKnobDataChange(
                 currentKnob, {
-                [event.target.name]: parseInt(event.target.value)
+                [e.target.name]: parseInt(e.target.value)
             });
         }
     }
 
-    function handleHiResChange(event) {
+    function handleHiResChange(e) {
         handleKnobDataChange(
             currentKnob, {
-            msb: validateValueRange(event.target),
-            lsb: validateValueRange(event.target) + 32
+            msb: validateValueRange(e.target),
+            lsb: validateValueRange(e.target) + 32
         });
     }
 
