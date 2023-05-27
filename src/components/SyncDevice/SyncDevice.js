@@ -20,14 +20,16 @@ import UpdateProgress from '../UpdateProgress/UpdateProgress';
 function SyncDEvice(props) {
     const {
         currentDevicePresetIndex,
-        handlePresetChange,
+        handlePresetUpdate,
         handleLoadFromDevice,
         firmwareVersion,
         isSyncing
     } = props;
 
     const [open, setOpen] = useState(false);
-
+    const handlePresetChange = e => {
+        handlePresetUpdate(parseInt(e.target.value));
+    }
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);

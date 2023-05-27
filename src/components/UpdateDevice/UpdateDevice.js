@@ -28,7 +28,7 @@ function UpdateDevice(props) {
         currentPreset,
         midiOutput,
         currentDevicePresetIndex,
-        handlePresetChange,
+        handlePresetUpdate,
         firmwareVersion
     } = props;
 
@@ -39,8 +39,13 @@ function UpdateDevice(props) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    const handlePresetChange = e => {
+        handlePresetUpdate(parseInt(e.target.value));
+    }
+
     const handleSaveToDevice = e => {
         setUpdating(true);
+        handlePresetUpdate(currentDevicePresetIndex);
         let promise = Promise.resolve();
         let messages;
         if (firmwareVersion[0] > 29) {

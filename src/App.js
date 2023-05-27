@@ -292,8 +292,7 @@ function App() {
     dispatch(setSystemMessage(null));
   }
 
-  const handlePresetChange = e => {
-    const presetIndex = parseInt(e.target.value);
+  const handlePresetUpdate = presetIndex => {
     dispatch(updateCurrentDevicePresetIndex(presetIndex));
     midiOutput.sendProgramChange(presetIndex, 1);
   }
@@ -310,6 +309,7 @@ function App() {
   }
   const handleLoadFromDevice = () => {
     dispatch(setIsSyncing(true));
+    handlePresetUpdate(currentPreset.presetID);
     midiOutput.sendSysex(32, [SYNC_KNOBS]);
     if (!sysExListener.current) {
       sysExListener.current = midiInput.addListener('sysex', handleSysEx);
@@ -409,7 +409,7 @@ function App() {
                     currentPreset={currentPreset}
                     midiOutput={midiOutput}
                     currentDevicePresetIndex={currentPreset.presetID}
-                    handlePresetChange={handlePresetChange}
+                    handlePresetUpdate={handlePresetUpdate}
                   />
 
                   <SyncDevice
@@ -417,7 +417,7 @@ function App() {
                     firmwareVersion={firmwareVersion}
                     currentPreset={currentPreset}
                     currentDevicePresetIndex={currentPreset.presetID}
-                    handlePresetChange={handlePresetChange}
+                    handlePresetUpdate={handlePresetUpdate}
                     handleLoadFromDevice={handleLoadFromDevice}
                   />
                 </Stack>
