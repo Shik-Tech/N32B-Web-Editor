@@ -431,9 +431,6 @@ function App() {
           <ConnectDevice />
         }
 
-        {/* {!window.chrome && (!window.chrome.webstore || !window.chrome.runtime) &&
-        
-        } */}
         {deviceIsConnected && firmwareVersion && currentPreset &&
           <Stack
             direction="row"

@@ -4,7 +4,7 @@ import Editor from './Editor/Editor';
 import SysExEditor from './Editor/SysExEditor';
 import UpdateDevice from './UpdateDevice/UpdateDevice';
 import SyncDevice from './SyncDevice/SyncDevice';
-import ConnectDevice from './ConnectDevice';
+import ConnectDevice from './StaticMessages/ConnectDevice';
 import PresetSelect from './PresetSelect';
 import PresetName from './PresetName';
 import Version from './Version';
