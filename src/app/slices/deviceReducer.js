@@ -35,7 +35,7 @@ export const deviceSlice = createSlice({
         setSystemMessage: (state, action) => {
             state.systemMessage = action.payload;
         },
-        openMessageDialog: (state, action) => {
+        setOpenMessageDialog: (state, action) => {
             state.openMessageDialog = action.payload;
         },
         setIsSyncing: (state, action) => {
@@ -51,7 +51,7 @@ export const {
     setMidiDeviceName,
     setFirmwareVersion,
     setSystemMessage,
-    openMessageDialog,
+    setOpenMessageDialog,
     setIsSyncing
 } = deviceSlice.actions;
 

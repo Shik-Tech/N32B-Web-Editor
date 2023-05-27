@@ -45,6 +45,7 @@ import {
   setMidiDeviceName,
   setMidiInput,
   setMidiOutput,
+  setOpenMessageDialog,
   setSystemMessage
 } from './app/slices/deviceReducer';
 import {
@@ -260,7 +261,7 @@ function App() {
           (firmwareVersion[0] === 4 && preset.presetVersion !== 4)
         ) {
           dispatch(setSystemMessage("The preset version is not matching the device firmware."));
-          dispatch(openMessageDialog(true));
+          dispatch(setOpenMessageDialog(true));
           return;
         } else {
           dispatch(updatePreset(preset));
@@ -288,7 +289,7 @@ function App() {
   }
 
   const handleCloseSystemDialog = () => {
-    dispatch(openMessageDialog(false));
+    dispatch(setOpenMessageDialog(false));
     dispatch(setSystemMessage(null));
   }
 
@@ -430,6 +431,9 @@ function App() {
           <ConnectDevice />
         }
 
+        {/* {!window.chrome && (!window.chrome.webstore || !window.chrome.runtime) &&
+        
+        } */}
         {deviceIsConnected && firmwareVersion && currentPreset &&
           <Stack
             direction="row"
