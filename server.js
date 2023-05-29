@@ -57,8 +57,6 @@ app.post('/api/upload', (req, res) => {
             return;
         }
 
-        console.log(fields);
-
         if (!fields.hexFile) {
             res.status(400).send('No file uploaded');
             return;
