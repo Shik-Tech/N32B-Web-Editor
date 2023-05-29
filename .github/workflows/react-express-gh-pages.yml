@@ -1,0 +1,49 @@
+name: Deploy React.js app with Express server to GitHub Pages
+
+on:
+  push:
+    branches:
+      - feature/macros
+
+permissions:
+  contents: read
+  packages: read
+  pull-requests: read
+  issues: write
+  deployments: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./client
+
+      - name: Build React app
+        run: npm run build
+        working-directory: ./client
+
+      - name: Install Express dependencies
+        run: npm install
+        working-directory: .
+
+      - name: Build Express server
+        run: npm run build
+        working-directory: .
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./client/build
