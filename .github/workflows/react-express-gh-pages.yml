@@ -28,7 +28,7 @@ jobs:
       - name: Install Yarn
         run: npm install -g yarn
 
-      - name: Install dependencies
+      - name: Install dependencies for React app
         run: yarn install
         working-directory: ./client
 
@@ -36,12 +36,8 @@ jobs:
         run: yarn build
         working-directory: ./client
 
-      - name: Install Express dependencies
+      - name: Install dependencies for Express server
         run: yarn install
-        working-directory: .
-
-      - name: Build Express server
-        run: yarn build
         working-directory: .
 
       - name: Publish to GitHub Pages
