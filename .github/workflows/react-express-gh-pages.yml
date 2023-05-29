@@ -23,22 +23,25 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 18.15
+          node-version: 18
+
+      - name: Install Yarn
+        run: npm install -g yarn
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
         working-directory: ./client
 
       - name: Build React app
-        run: npm run build
+        run: yarn build
         working-directory: ./client
 
       - name: Install Express dependencies
-        run: npm install
+        run: yarn install
         working-directory: .
 
       - name: Build Express server
-        run: npm run build
+        run: yarn build
         working-directory: .
 
       - name: Publish to GitHub Pages
