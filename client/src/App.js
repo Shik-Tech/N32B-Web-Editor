@@ -21,7 +21,8 @@ import {
   ThruMode,
   ThruOptions,
   OutputMode,
-  OutputOptions
+  OutputOptions,
+  FirmwareUpdate
 } from './components';
 import {
   END_OF_TRANSMISSION,
@@ -38,7 +39,8 @@ import {
   setMidiInput,
   setMidiOutput,
   setOpenMessageDialog,
-  setSystemMessage
+  setSystemMessage,
+  setUpdateFirmwareScreen
 } from './app/slices/deviceReducer';
 import {
   setPreset,
@@ -63,7 +65,8 @@ function App() {
     midiDeviceName,
     systemMessage,
     openMessageDialog,
-    isSyncing
+    isSyncing,
+    isUpdateFirmwareScreen
   } = useSelector(state => state.device);
 
   const {
@@ -310,7 +313,8 @@ function App() {
     }
   }
   const handleFirmwareUpdate = () => {
-    window.open("https://shik.tech/firmware-update/");
+    // window.open("https://shik.tech/firmware-update/");
+    dispatch(setUpdateFirmwareScreen(!isUpdateFirmwareScreen));
   }
 
   function handleOutputModeChange(outputMode) {
@@ -346,11 +350,11 @@ function App() {
           handleLoadFromDevice={handleLoadFromDevice}
         />
 
-        {!deviceIsConnected &&
+        {!deviceIsConnected && !isUpdateFirmwareScreen &&
           <ConnectDevice />
         }
 
-        {deviceIsConnected && firmwareVersion && currentPreset &&
+        {deviceIsConnected && firmwareVersion && currentPreset && !isUpdateFirmwareScreen &&
           <Stack
             direction="row"
             divider={<Divider orientation="vertical" flexItem />}
@@ -410,6 +414,10 @@ function App() {
               }
             </Stack>
           </Stack>
+        }
+
+        {isUpdateFirmwareScreen &&
+          <FirmwareUpdate />
         }
       </Box>
     </Container >

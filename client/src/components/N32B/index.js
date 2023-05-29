@@ -1,6 +1,6 @@
 import { Container } from '@mui/material';
 import React from 'react';
-import { Knobs } from '../../components';
+import { Knobs } from '..';
 
 function N32B(props) {
     return (

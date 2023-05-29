@@ -17,7 +17,7 @@ import logo from '../images/shik-logo-small.png';
 import {
     UpdateDevice,
     SyncDevice,
-} from '../';
+} from '..';
 
 function AppHeader({
     firmwareVersion,
@@ -65,16 +65,15 @@ function AppHeader({
                                 }
                             </Typography>
                         }
+                        {deviceIsConnected &&
+                            <Button
+                                onClick={handleFirmwareUpdate}
+                                color="error"
+                            >
+                                Update Firmware
+                            </Button>
+                        }
                     </Stack>
-
-                    {deviceIsConnected && !firmwareVersion &&
-                        <Button
-                            onClick={handleFirmwareUpdate}
-                            color="error"
-                        >
-                            Firmware Update
-                        </Button>
-                    }
 
                     {deviceIsConnected && firmwareVersion && currentPreset &&
                         <Stack

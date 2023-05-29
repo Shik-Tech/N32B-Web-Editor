@@ -40,6 +40,9 @@ export const deviceSlice = createSlice({
         },
         setIsSyncing: (state, action) => {
             state.isSyncing = action.payload
+        },
+        setUpdateFirmwareScreen: (state, action) => {
+            state.isUpdateFirmwareScreen = action.payload
         }
     }
 })
@@ -52,7 +55,8 @@ export const {
     setFirmwareVersion,
     setSystemMessage,
     setOpenMessageDialog,
-    setIsSyncing
+    setIsSyncing,
+    setUpdateFirmwareScreen
 } = deviceSlice.actions;
 
 export default deviceSlice.reducer
