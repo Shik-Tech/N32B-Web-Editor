@@ -416,9 +416,9 @@ function App() {
           </Stack>
         }
 
-        {isUpdateFirmwareScreen &&
+        {/* {isUpdateFirmwareScreen &&
           <FirmwareUpdate />
-        }
+        } */}
       </Box>
     </Container >
   );
