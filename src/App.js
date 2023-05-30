@@ -22,7 +22,7 @@ import {
   ThruOptions,
   OutputMode,
   OutputOptions,
-  FirmwareUpdate
+  // FirmwareUpdate
 } from './components';
 import {
   END_OF_TRANSMISSION,
