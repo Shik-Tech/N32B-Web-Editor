@@ -75,7 +75,7 @@ function App() {
   } = useSelector(state => state.preset);
   const dispatch = useDispatch();
 
-  const appVersion = 'v2.3.0';
+  const appVersion = 'v2.3.1';
   let firmwareVersionListener = useRef();
   let sysExListener = useRef();
 
