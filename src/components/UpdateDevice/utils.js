@@ -43,6 +43,7 @@ export function generateSysExFromPresetV2(currentPreset) {
     const {
         knobs,
         thruMode,
+        outputMode,
     } = currentPreset;
 
     const knobMessage = map(knobs, knob => {
@@ -77,8 +78,14 @@ export function generateSysExFromPresetV2(currentPreset) {
         thruMode
     ];
 
+    const outputModeMessage = [
+        SET_OUTPUT_MODE,
+        outputMode
+    ];
+
     messages.push(...knobMessage);
     messages.push(thruModeMessage);
+    messages.push(outputModeMessage);
     messages.push([SAVE_PRESET, currentPreset.presetID]);
 
     return messages;

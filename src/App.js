@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import { WebMidi } from "webmidi";
-import { findIndex } from 'lodash';
+import { find, findIndex, get } from 'lodash';
 import { Container } from '@mui/system';
 import {
   Box,
@@ -32,17 +32,16 @@ import {
   SYNC_KNOBS
 } from './components/UpdateDevice/commands';
 import {
-  setDeviceIsConnected,
+  setConnectedDevices,
+  setDeviceConnected,
+  setDeviceDisconnected,
   setFirmwareVersion,
   setIsSyncing,
-  setMidiDeviceName,
-  setMidiInput,
-  setMidiOutput,
   setOpenMessageDialog,
   setSystemMessage,
-  setUpdateFirmwareScreen
 } from './app/slices/deviceReducer';
 import {
+  setInitialPreset,
   setPreset,
   setSelectedKnobIndex,
   updateCurrentDevicePresetIndex,
@@ -65,8 +64,7 @@ function App() {
     midiDeviceName,
     systemMessage,
     openMessageDialog,
-    isSyncing,
-    isUpdateFirmwareScreen
+    isSyncing
   } = useSelector(state => state.device);
 
   const {
@@ -75,35 +73,29 @@ function App() {
   } = useSelector(state => state.preset);
   const dispatch = useDispatch();
 
+  const sysExListener = useRef();
+
   const appVersion = 'v2.3.1';
-  let firmwareVersionListener = useRef();
-  let sysExListener = useRef();
 
-  WebMidi.enable({ sysex: true }).then(() => {
-    WebMidi.waitFor("connected").then(() => {
-      const foundedInputDevice = WebMidi.getInputByName("N32B");
-      const foundedOutputDevice = WebMidi.getOutputByName("N32B");
+  WebMidi.addListener("connected", (event) => {
+    const inputDevice = WebMidi.getInputByName("N32B");
+    const outputDevice = WebMidi.getOutputByName("N32B");
 
-      if (foundedInputDevice && !midiInput) {
-        dispatch(setMidiInput(foundedInputDevice));
-      }
-      if (foundedOutputDevice && !midiOutput) {
-        dispatch(setMidiOutput(foundedOutputDevice));
-      }
-    });
-
-    WebMidi.waitFor("disconnected").then(() => {
-      if (deviceIsConnected) {
-        dispatch(setDeviceIsConnected(false));
-        dispatch(updateCurrentDevicePresetIndex(0));
-      }
-    });
-
-  }).catch(err => {
-    if (err) {
-      console.log("WebMidi could not be enabled.", err);
+    if (inputDevice && outputDevice && !midiInput && !midiOutput) {
+      dispatch(setConnectedDevices({ inputDevice, outputDevice }));
+      dispatch(setDeviceConnected());
     }
   });
+
+  WebMidi.addListener("disconnected", (event) => {
+    const result = find(event.port, el => get(el, 'name') === 'SHIK N32B');
+    if (result) {
+      dispatch(setDeviceDisconnected());
+      dispatch(setInitialPreset());
+    }
+  });
+
+  WebMidi.enable({ sysex: true });
 
   useEffect(() => {
     if (!currentPreset && firmwareVersion) {
@@ -116,27 +108,50 @@ function App() {
         preset = defaultPresets.defaultPreset_v4;
       }
       dispatch(setPreset(preset));
+      dispatch(setDeviceConnected());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firmwareVersion, currentPreset]);
 
-  useEffect(() => {
-    if (midiOutput) {
-      midiOutput.sendSysex(32, [SEND_FIRMWARE_VERSION]);
-      dispatch(setMidiDeviceName(midiOutput.name));
-      dispatch(setDeviceIsConnected(true));
+    if (midiInput && !sysExListener.current) {
+      sysExListener.current = midiInput.addListener('sysex', handleSysEx);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [midiOutput]);
 
-  useEffect(() => {
-    if (midiInput) {
-      if (!firmwareVersionListener.current) {
-        firmwareVersionListener.current = midiInput.addOneTimeListener('sysex', handleSysEx);
+    return () => {
+      if (midiInput) {
+        midiInput.removeListener('sysex', handleSysEx);
+        sysExListener.current = null;
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [midiInput]);
+  }, [firmwareVersion, currentPreset, midiInput]);
+
+  useEffect(() => {
+    if (midiInput && midiOutput) {
+      midiInput.addListener('sysex', handleFirmwareSysEx);
+      midiOutput.sendSysex(32, [SEND_FIRMWARE_VERSION]);
+    }
+    return () => {
+      if (midiInput) {
+        midiInput.removeListener('sysex', handleFirmwareSysEx);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [midiInput, midiOutput]);
+
+  function handleFirmwareSysEx(e) {
+    const {
+      dataBytes,
+      message: {
+        manufacturerId
+      }
+    } = e;
+
+    if (manufacturerId[0] === 32) {
+      if (dataBytes[0] === SEND_FIRMWARE_VERSION && dataBytes.length > 2) {
+        const firmwareVersion = dataBytes.slice(1);
+        dispatch(setFirmwareVersion(firmwareVersion));
+      }
+    }
+  }
 
   function handleSysEx(e) {
     const {
@@ -307,14 +322,14 @@ function App() {
   const handleLoadFromDevice = () => {
     dispatch(setIsSyncing(true));
     handlePresetUpdate(currentPreset.presetID);
+    // if (!sysExListener.current) {
+    //   sysExListener.current = midiInput.addListener('sysex', handleSysEx);
+    // }
     midiOutput.sendSysex(32, [SYNC_KNOBS]);
-    if (!sysExListener.current) {
-      sysExListener.current = midiInput.addListener('sysex', handleSysEx);
-    }
   }
   const handleFirmwareUpdate = () => {
-    // window.open("https://shik.tech/firmware-update/");
-    dispatch(setUpdateFirmwareScreen(!isUpdateFirmwareScreen));
+    window.open("https://shik.tech/firmware-update/");
+    // dispatch(setUpdateFirmwareScreen(!isUpdateFirmwareScreen));
   }
 
   function handleOutputModeChange(outputMode) {
@@ -350,11 +365,11 @@ function App() {
           handleLoadFromDevice={handleLoadFromDevice}
         />
 
-        {!deviceIsConnected && !isUpdateFirmwareScreen &&
+        {!deviceIsConnected &&
           <ConnectDevice />
         }
 
-        {deviceIsConnected && firmwareVersion && currentPreset && !isUpdateFirmwareScreen &&
+        {deviceIsConnected && firmwareVersion && currentPreset &&
           <Stack
             direction="row"
             divider={<Divider orientation="vertical" flexItem />}

@@ -1,13 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ModeIndexes } from '../../components/Editor/Modes';
 
+const initialState = {
+    currentPreset: null,
+    selectedKnobIndex: 0
+};
+
 export const presetSlice = createSlice({
-    name: 'device',
-    initialState: {
-        currentPreset: null,
-        selectedKnobIndex: 0
-    },
+    name: 'preset',
+    initialState,
     reducers: {
+        setInitialPreset: (state) => initialState,
         setPreset: (state, action) => {
             state.currentPreset = action.payload;
         },
@@ -49,6 +52,7 @@ export const presetSlice = createSlice({
 })
 
 export const {
+    setInitialPreset,
     setPreset,
     updatePreset,
     updateMidiThru,

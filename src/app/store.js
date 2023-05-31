@@ -11,7 +11,7 @@ export default configureStore({
         getDefaultMiddleware({
             serializableCheck: {
                 // Ignore these action types
-                ignoredActions: ['device/setMidiInput', 'device/setMidiOutput'],
+                ignoredActions: ['device/setConnectedDevices'],
                 // Ignore these paths in the state
                 ignoredPaths: ['device.midiInput', 'device.midiOutput'],
             },

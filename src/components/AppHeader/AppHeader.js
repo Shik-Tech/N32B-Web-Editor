@@ -65,14 +65,14 @@ function AppHeader({
                                 }
                             </Typography>
                         }
-                        {/* {deviceIsConnected &&
+                        {deviceIsConnected &&
                             <Button
                                 onClick={handleFirmwareUpdate}
                                 color="error"
                             >
-                                Update Firmware
+                                Firmware Update
                             </Button>
-                        } */}
+                        }
                     </Stack>
 
                     {deviceIsConnected && firmwareVersion && currentPreset &&
