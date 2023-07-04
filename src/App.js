@@ -75,7 +75,7 @@ function App() {
 
   const sysExListener = useRef();
 
-  const appVersion = 'v2.3.1';
+  const appVersion = 'v2.3.2';
 
   WebMidi.addListener("connected", (event) => {
     const inputDevice = WebMidi.getInputByName("N32B");
@@ -321,6 +321,7 @@ function App() {
   }
   const handleLoadFromDevice = () => {
     dispatch(setIsSyncing(true));
+    handleSelectedKnobIndex(0);
     handlePresetUpdate(currentPreset.presetID);
     // if (!sysExListener.current) {
     //   sysExListener.current = midiInput.addListener('sysex', handleSysEx);
