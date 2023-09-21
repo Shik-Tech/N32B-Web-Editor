@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { map } from 'lodash';
 import {
     Button,
@@ -15,25 +15,40 @@ import {
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SyncRoundedIcon from '@mui/icons-material/SyncRounded';
+import UpdateProgress from '../UpdateProgress/UpdateProgress';
 
 function SyncDEvice(props) {
     const {
         currentDevicePresetIndex,
-        updateCurrentDevicePresetIndex,
+        handlePresetUpdate,
         handleLoadFromDevice,
-        firmwareVersion
+        firmwareVersion,
+        isSyncing
     } = props;
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const handlePresetChange = e => {
+        handlePresetUpdate(parseInt(e.target.value));
+    }
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const handlePresetSelect = e => {
-        updateCurrentDevicePresetIndex(parseInt(e.target.value));
+    let presets;
+    switch (true) {
+        case firmwareVersion[0] === 4:
+            presets = [0, 1, 2];
+            break;
+        case firmwareVersion[0] < 4:
+            presets = [0, 1, 2, 3, 4];
+            break;
+        case firmwareVersion[0] > 29:
+            presets = [0];
+            break;
+        default:
+            presets = [0];
+            break;
     }
-
-    const presets = firmwareVersion[0] < 30 ? [0, 1, 2, 3, 4] : [0];
 
     return (
         <>
@@ -81,7 +96,7 @@ function SyncDEvice(props) {
                                 label="Device Preset"
                                 color='warning'
                                 value={currentDevicePresetIndex}
-                                onChange={handlePresetSelect}
+                                onChange={handlePresetChange}
                             >
                                 {map(presets, (presetValue, key) =>
                                     <MenuItem value={presetValue} key={key}>Preset {presetValue + 1}</MenuItem>
@@ -99,6 +114,13 @@ function SyncDEvice(props) {
                         </Button>
                     </Stack>
                 </Stack>
+                {
+                    firmwareVersion[0] > 3 &&
+                    <UpdateProgress
+                        updating={isSyncing}
+                        title="Syncing"
+                    />
+                }
             </Dialog>
         </>
     );

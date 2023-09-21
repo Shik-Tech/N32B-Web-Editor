@@ -1,12 +1,20 @@
 import React from 'react';
-import { Grid, Typography } from '@mui/material';
+import { Grid, List, ListItem, ListItemText, Typography } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import { map } from 'lodash';
 
 function ConnectDevice() {
+    const supportedBrowsers = [
+        "Edge v79+",
+        "Chrome 43+",
+        "Opera 30+",
+        "Firefox 108+",
+    ];
+
     return (
         <Grid
             container
-            spacing={0}
+            spacing={2}
             direction="column"
             alignItems="center"
             justifyContent="center"
@@ -20,6 +28,17 @@ function ConnectDevice() {
                 <Typography variant='body2'>
                     Make sure you connect only one N32B device while using the editor
                 </Typography>
+            </Grid>
+            <Grid item>
+                <Typography variant='body2'>Please use one of the following browsers:</Typography>
+                <List dense>
+                    {map(supportedBrowsers, browser => (
+                        <ListItem key={browser}>
+                            <ListItemText primary={browser} />
+                        </ListItem>)
+                    )}
+                </List>
+
             </Grid>
         </Grid>
     )

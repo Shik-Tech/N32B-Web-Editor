@@ -4,12 +4,17 @@ import Editor from './Editor/Editor';
 import SysExEditor from './Editor/SysExEditor';
 import UpdateDevice from './UpdateDevice/UpdateDevice';
 import SyncDevice from './SyncDevice/SyncDevice';
-import ConnectDevice from './ConnectDevice';
+import ConnectDevice from './StaticMessages/ConnectDevice';
 import PresetSelect from './PresetSelect';
 import PresetName from './PresetName';
 import Version from './Version';
 import SystemMessages from './SystemMessages/SystemMessages';
 import ThruMode from './ThruMode/ThruMode';
+import ThruOptions from './ThruMode/ThruOptions';
+import OutputMode from './OutputMode/OutputMode';
+import OutputOptions from './OutputMode/OutputOptions';
+import UpdateProgress from './UpdateProgress/UpdateProgress';
+import FirmwareUpdate from './FirmwareUpdate/FirmwareUpdate';
 
 export {
     N32B,
@@ -23,5 +28,10 @@ export {
     PresetName,
     Version,
     SystemMessages,
-    ThruMode
+    ThruMode,
+    ThruOptions,
+    OutputMode,
+    OutputOptions,
+    UpdateProgress,
+    FirmwareUpdate
 };

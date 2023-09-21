@@ -1,58 +1,66 @@
 import {
     Checkbox,
-    FormControl,
     FormControlLabel,
     Stack,
     TextField
 } from "@mui/material";
 import React from "react";
 
-function ControlChangeHiResForm({
+function Version3Form({
     currentKnob,
     handleHiResChange,
-    handleInvertValueAChange
+    handleChange
 }) {
     const {
         msb,
         lsb,
-        invert_a
+        invert_a,
     } = currentKnob;
 
     return (
         <Stack
-            direction="row"
+            direction="column"
             spacing={2}
         >
-            <FormControl fullWidth>
+            <Stack
+                direction="row"
+                spacing={2}
+            >
                 <TextField
+                    fullWidth
+                    size="small"
                     label="MSB"
                     type="number"
+                    name="msb"
 
                     InputProps={{ inputProps: { min: 0, max: 31 } }}
                     value={msb}
                     onChange={handleHiResChange}
                 />
-            </FormControl>
-            <FormControl fullWidth>
                 <TextField
+                    fullWidth
+                    size="small"
                     label="LSB"
                     type="number"
+                    name="lsb"
+
                     disabled={true}
                     InputProps={{ inputProps: { min: 0, max: 31 } }}
                     value={lsb}
                 />
-            </FormControl>
 
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        checked={invert_a}
-                        onChange={handleInvertValueAChange}
-                    />
-                }
-                label="Invert" />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={invert_a}
+                            id="invert_a"
+                            onChange={handleChange}
+                        />
+                    }
+                    label="Invert" />
+            </Stack>
         </Stack>
     )
 }
 
-export default ControlChangeHiResForm;
+export default Version3Form;

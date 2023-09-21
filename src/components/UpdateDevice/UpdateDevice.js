@@ -1,5 +1,4 @@
-import React, { Fragment, useState } from 'react';
-import { generateSysExFromPreset, generateSysExFromPresetV2 } from './utils';
+import React, { useState } from 'react';
 import { forEach, map } from 'lodash';
 import {
     Button,
@@ -9,9 +8,6 @@ import {
     MenuItem,
     Stack,
     Typography,
-    Modal,
-    Box,
-    CircularProgress,
     Dialog,
     DialogTitle,
     Grid,
@@ -20,75 +16,19 @@ import {
 } from '@mui/material';
 import DownloadingRoundedIcon from '@mui/icons-material/DownloadingRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-};
-
-function CircularProgressWithLabel(props) {
-    return (
-        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress variant="determinate" {...props} />
-            <Box
-                sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Typography
-                    variant="caption"
-                    component="div"
-                    color="text.secondary"
-                >{`${Math.round(props.value)}%`}</Typography>
-            </Box>
-        </Box>
-    );
-}
-
-
-function UpdateProgress({ updating, progress }) {
-    return (
-        <Fragment>
-            <Modal
-                // hideBackdrop
-                open={updating}
-                aria-labelledby="child-modal-title"
-                aria-describedby="child-modal-description"
-            >
-                <Box sx={{ ...style, width: 200 }}>
-                    <Stack
-                        direction="row"
-                        spacing={3}
-                    >
-                        <Typography variant='h6'>Updating</Typography>
-                        <CircularProgressWithLabel value={progress} />
-                    </Stack>
-                </Box>
-            </Modal>
-        </Fragment>
-    );
-}
+import {
+    generateSysExFromPreset,
+    generateSysExFromPresetV2,
+    generateSysExFromPresetV3
+} from './utils';
+import { UpdateProgress } from '..';
 
 function UpdateDevice(props) {
     const {
         currentPreset,
         midiOutput,
         currentDevicePresetIndex,
-        updateCurrentDevicePresetIndex,
+        handlePresetUpdate,
         firmwareVersion
     } = props;
 
@@ -99,18 +39,21 @@ function UpdateDevice(props) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const handlePresetSelect = e => {
-        updateCurrentDevicePresetIndex(parseInt(e.target.value));
+    const handlePresetChange = e => {
+        handlePresetUpdate(parseInt(e.target.value));
     }
 
     const handleSaveToDevice = e => {
         setUpdating(true);
+        handlePresetUpdate(currentDevicePresetIndex);
         let promise = Promise.resolve();
         let messages;
-        if (firmwareVersion[0] < 30) {
+        if (firmwareVersion[0] > 29) {
+            messages = generateSysExFromPresetV2(currentPreset);
+        } else if (firmwareVersion[0] < 4) {
             messages = generateSysExFromPreset(currentPreset);
         } else {
-            messages = generateSysExFromPresetV2(currentPreset);
+            messages = generateSysExFromPresetV3(currentPreset);
         }
         forEach(messages, (message, key) => {
             promise = promise.then(() => {
@@ -129,7 +72,21 @@ function UpdateDevice(props) {
         });
     }
 
-    const presets = firmwareVersion[0] < 30 ? [0, 1, 2, 3, 4] : [0];
+    let presets;
+    switch (true) {
+        case firmwareVersion[0] === 4:
+            presets = [0, 1, 2];
+            break;
+        case firmwareVersion[0] < 4:
+            presets = [0, 1, 2, 3, 4];
+            break;
+        case firmwareVersion[0] > 29:
+            presets = [0];
+            break;
+        default:
+            presets = [0];
+            break;
+    }
 
     return (
         <>
@@ -192,7 +149,7 @@ function UpdateDevice(props) {
                                 id="preset-select"
                                 label="Device Preset"
                                 value={currentDevicePresetIndex}
-                                onChange={handlePresetSelect}
+                                onChange={handlePresetChange}
                             >
                                 {map(presets, (presetValue, key) =>
                                     <MenuItem value={presetValue} key={key}>Preset {presetValue + 1}</MenuItem>
@@ -214,6 +171,8 @@ function UpdateDevice(props) {
                 <UpdateProgress
                     updating={updating}
                     progress={progress}
+                    title="Updating"
+                    variant="determinate"
                 />
             </Dialog>
         </>

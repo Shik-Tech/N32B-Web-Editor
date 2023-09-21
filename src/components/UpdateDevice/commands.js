@@ -6,6 +6,8 @@ const SYNC_KNOBS = 5;            // Send active preset
 const CHANGE_CHANNEL = 6;        // Changes the global MIDI channel
 const START_SYSEX_MESSAGE = 7;   // Announce start of sysEx mesasge
 const SET_THRU_MODE = 8;         // Set Thru Mode
+const SET_OUTPUT_MODE = 9;       // Set OUTPUT mode
+const END_OF_TRANSMISSION = 99;  // Notify end of transmission
 
 export {
     SET_KNOB_MODE,
@@ -15,5 +17,7 @@ export {
     SYNC_KNOBS,
     CHANGE_CHANNEL,
     START_SYSEX_MESSAGE,
-    SET_THRU_MODE
+    SET_THRU_MODE,
+    SET_OUTPUT_MODE,
+    END_OF_TRANSMISSION
 };
